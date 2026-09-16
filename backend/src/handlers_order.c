@@ -514,9 +514,35 @@ void handle_admin_update_order_status(struct mg_connection *c, struct mg_http_me
     // In our simplified architecture, it stays in the queue and fails gracefully on dequeue,
     // or we can just accept that admin processes linearly. If they bypass queue and update status directly:
     
+    
     o.status = new_status;
     update_order(&o);
     
     send_json_message(c, 200, 1, "Order status updated");
     cJSON_Delete(json);
+}
+
+void handle_admin_orders_queue(struct mg_connection *c, struct mg_http_message *hm) {
+    if (mg_vcasecmp(&hm->method, "GET") != 0) { send_405_method_not_allowed(c, "GET required"); return; }
+    int admin_id; if (!require_role(c, hm, ROLE_ADMIN, &admin_id)) return;
+    
+    cJSON *root = cJSON_CreateObject();
+    cJSON_AddBoolToObject(root, "success", true);
+    cJSON *arr = cJSON_CreateArray();
+    
+    int count = count_orders();
+    for (int i = 1; i <= count; i++) {
+        Order o;
+        if (load_order_by_id(i, &o)) {
+            if (o.status == ORDER_PENDING || o.status == ORDER_PREPARING) {
+                cJSON_AddItemToArray(arr, order_to_json(&o));
+            }
+        }
+    }
+    
+    cJSON_AddItemToObject(root, "data", arr);
+    char *json_str = cJSON_PrintUnformatted(root);
+    send_200_ok(c, json_str);
+    free(json_str);
+    cJSON_Delete(root);
 }

@@ -54,10 +54,16 @@ void route_request(struct mg_connection *c, struct mg_http_message *hm) {
         if (mg_vcasecmp(&hm->method, "POST") == 0) handle_admin_add_food(c, hm);
         else if (mg_vcasecmp(&hm->method, "GET") == 0) handle_admin_get_foods(c, hm);
         else send_405_method_not_allowed(c, "POST or GET required");
+    } else if (mg_http_match_uri(hm, "/api/admin/dashboard")) {
+        handle_admin_dashboard(c, hm);
+    } else if (mg_http_match_uri(hm, "/api/admin/inventory/summary")) {
+        handle_admin_inventory_summary(c, hm);
     } else if (mg_http_match_uri(hm, "/api/admin/sales/daily")) {
         handle_admin_daily_sales(c, hm);
     } else if (mg_http_match_uri(hm, "/api/admin/popular-foods")) {
         handle_admin_popular_foods(c, hm);
+    } else if (mg_http_match_uri(hm, "/api/admin/orders/queue")) {
+        handle_admin_orders_queue(c, hm);
     } else if (mg_http_match_uri(hm, "/api/admin/orders/next")) {
         handle_admin_process_next_order(c, hm);
     } else if (mg_http_match_uri(hm, "/api/admin/orders/*/status")) {

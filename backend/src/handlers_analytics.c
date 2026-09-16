@@ -170,6 +170,106 @@ void handle_admin_popular_foods(struct mg_connection *c, struct mg_http_message 
     } else {
         send_json_message(c, 200, 1, "No data available");
     }
+        free(agg);
+}
+
+// ---------------------------------------------------------
+// DASHBOARD & INVENTORY SUMMARY
+// ---------------------------------------------------------
+
+void handle_admin_dashboard(struct mg_connection *c, struct mg_http_message *hm) {
+    if (mg_vcasecmp(&hm->method, "GET") != 0) { send_405_method_not_allowed(c, "GET required"); return; }
+    int admin_id; if (!require_role(c, hm, ROLE_ADMIN, &admin_id)) return;
     
-    free(agg);
+    char date_filter[32] = {0};
+    time_t now = time(NULL);
+    struct tm *t = localtime(&now);
+    strftime(date_filter, sizeof(date_filter), "%Y-%m-%d", t);
+    
+    double today_revenue = 0.0;
+    int pending_orders = 0;
+    int completed_orders_today = 0;
+    
+    int o_count = count_orders();
+    for (int i = 1; i <= o_count; i++) {
+        Order o;
+        if (load_order_by_id(i, &o)) {
+            if (o.status == ORDER_PENDING || o.status == ORDER_PREPARING) {
+                pending_orders++;
+            }
+            
+            char order_date[32];
+            struct tm *ot = localtime(&o.created_at);
+            strftime(order_date, sizeof(order_date), "%Y-%m-%d", ot);
+            
+            if (strcmp(order_date, date_filter) == 0 && o.status == ORDER_COMPLETED) {
+                today_revenue += o.total_amount;
+                completed_orders_today++;
+            }
+        }
+    }
+    
+    int low_stock_items = 0;
+    int out_of_stock_items = 0;
+    int f_count = count_foods();
+    for (int i = 1; i <= f_count; i++) {
+        Food f;
+        if (load_food_by_id(i, &f) && f.active == STATUS_ACTIVE) {
+            if (f.stock == 0) out_of_stock_items++;
+            else if (f.stock <= 5) low_stock_items++;
+        }
+    }
+    
+    cJSON *root = cJSON_CreateObject();
+    cJSON_AddBoolToObject(root, "success", true);
+    
+    cJSON *data = cJSON_CreateObject();
+    cJSON_AddNumberToObject(data, "today_revenue", today_revenue);
+    cJSON_AddNumberToObject(data, "pending_orders", pending_orders);
+    cJSON_AddNumberToObject(data, "completed_orders_today", completed_orders_today);
+    cJSON_AddNumberToObject(data, "low_stock_items", low_stock_items);
+    cJSON_AddNumberToObject(data, "out_of_stock_items", out_of_stock_items);
+    
+    cJSON_AddItemToObject(root, "data", data);
+    char *json_str = cJSON_PrintUnformatted(root);
+    send_200_ok(c, json_str);
+    free(json_str);
+    cJSON_Delete(root);
+}
+
+void handle_admin_inventory_summary(struct mg_connection *c, struct mg_http_message *hm) {
+    if (mg_vcasecmp(&hm->method, "GET") != 0) { send_405_method_not_allowed(c, "GET required"); return; }
+    int admin_id; if (!require_role(c, hm, ROLE_ADMIN, &admin_id)) return;
+    
+    int total_items = 0;
+    int available_items = 0;
+    int unavailable_items = 0;
+    double total_stock_value = 0.0;
+    
+    int f_count = count_foods();
+    for (int i = 1; i <= f_count; i++) {
+        Food f;
+        if (load_food_by_id(i, &f) && f.active == STATUS_ACTIVE) {
+            total_items++;
+            if (f.availability && f.stock > 0) available_items++;
+            else unavailable_items++;
+            
+            total_stock_value += (f.price * f.stock);
+        }
+    }
+    
+    cJSON *root = cJSON_CreateObject();
+    cJSON_AddBoolToObject(root, "success", true);
+    
+    cJSON *data = cJSON_CreateObject();
+    cJSON_AddNumberToObject(data, "total_items", total_items);
+    cJSON_AddNumberToObject(data, "available_items", available_items);
+    cJSON_AddNumberToObject(data, "unavailable_items", unavailable_items);
+    cJSON_AddNumberToObject(data, "total_stock_value", total_stock_value);
+    
+    cJSON_AddItemToObject(root, "data", data);
+    char *json_str = cJSON_PrintUnformatted(root);
+    send_200_ok(c, json_str);
+    free(json_str);
+    cJSON_Delete(root);
 }
