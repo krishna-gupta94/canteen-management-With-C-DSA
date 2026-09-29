@@ -9,7 +9,7 @@
 #define ROLE_ADMIN 1
 
 typedef struct {
-    char token[64];
+    char token[65];
     int user_id;
     int role;
     time_t expires_at;

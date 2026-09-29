@@ -14,7 +14,7 @@
 // ---------------------------------------------------------
 
 void handle_admin_daily_sales(struct mg_connection *c, struct mg_http_message *hm) {
-    if (mg_vcasecmp(&hm->method, "GET") != 0) { send_405_method_not_allowed(c, "GET required"); return; }
+    if (mg_strcasecmp(hm->method, mg_str("GET")) != 0) { send_405_method_not_allowed(c, "GET required"); return; }
     int admin_id; if (!require_role(c, hm, ROLE_ADMIN, &admin_id)) return;
     
     char date_filter[32] = {0};
@@ -88,7 +88,7 @@ static int cmp_popular_desc(void *a, void *b) {
 }
 
 void handle_admin_popular_foods(struct mg_connection *c, struct mg_http_message *hm) {
-    if (mg_vcasecmp(&hm->method, "GET") != 0) { send_405_method_not_allowed(c, "GET required"); return; }
+    if (mg_strcasecmp(hm->method, mg_str("GET")) != 0) { send_405_method_not_allowed(c, "GET required"); return; }
     int admin_id; if (!require_role(c, hm, ROLE_ADMIN, &admin_id)) return;
     
     int max_foods = count_foods();
@@ -178,7 +178,7 @@ void handle_admin_popular_foods(struct mg_connection *c, struct mg_http_message 
 // ---------------------------------------------------------
 
 void handle_admin_dashboard(struct mg_connection *c, struct mg_http_message *hm) {
-    if (mg_vcasecmp(&hm->method, "GET") != 0) { send_405_method_not_allowed(c, "GET required"); return; }
+    if (mg_strcasecmp(hm->method, mg_str("GET")) != 0) { send_405_method_not_allowed(c, "GET required"); return; }
     int admin_id; if (!require_role(c, hm, ROLE_ADMIN, &admin_id)) return;
     
     char date_filter[32] = {0};
@@ -264,7 +264,7 @@ void handle_admin_dashboard(struct mg_connection *c, struct mg_http_message *hm)
 }
 
 void handle_admin_inventory_summary(struct mg_connection *c, struct mg_http_message *hm) {
-    if (mg_vcasecmp(&hm->method, "GET") != 0) { send_405_method_not_allowed(c, "GET required"); return; }
+    if (mg_strcasecmp(hm->method, mg_str("GET")) != 0) { send_405_method_not_allowed(c, "GET required"); return; }
     int admin_id; if (!require_role(c, hm, ROLE_ADMIN, &admin_id)) return;
     
     int total_items = 0;

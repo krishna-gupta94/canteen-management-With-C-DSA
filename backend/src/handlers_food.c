@@ -145,7 +145,7 @@ static void send_food_list_response(struct mg_connection *c, LinkedList *list) {
 // ---------------------------------------------------------
 static int extract_id(struct mg_http_message *hm, const char *prefix) {
     // skip prefix
-    const char *p = hm->uri.ptr + strlen(prefix);
+    const char *p = hm->uri.buf + strlen(prefix);
     if (*p == '/') p++;
     return atoi(p);
 }
@@ -155,10 +155,10 @@ static int extract_id(struct mg_http_message *hm, const char *prefix) {
 // ---------------------------------------------------------
 
 void handle_admin_add_food(struct mg_connection *c, struct mg_http_message *hm) {
-    if (mg_vcasecmp(&hm->method, "POST") != 0) { send_405_method_not_allowed(c, "POST required"); return; }
+    if (mg_strcasecmp(hm->method, mg_str("POST")) != 0) { send_405_method_not_allowed(c, "POST required"); return; }
     int admin_id; if (!require_role(c, hm, ROLE_ADMIN, &admin_id)) return;
     
-    cJSON *json = cJSON_ParseWithLength(hm->body.ptr, hm->body.len);
+    cJSON *json = cJSON_ParseWithLength(hm->body.buf, hm->body.len);
     if (!json) { send_400_bad_request(c, "Malformed JSON"); return; }
     
     cJSON *name = cJSON_GetObjectItem(json, "name");
@@ -198,7 +198,7 @@ void handle_admin_add_food(struct mg_connection *c, struct mg_http_message *hm) 
 }
 
 void handle_admin_get_foods(struct mg_connection *c, struct mg_http_message *hm) {
-    if (mg_vcasecmp(&hm->method, "GET") != 0) { send_405_method_not_allowed(c, "GET required"); return; }
+    if (mg_strcasecmp(hm->method, mg_str("GET")) != 0) { send_405_method_not_allowed(c, "GET required"); return; }
     int admin_id; if (!require_role(c, hm, ROLE_ADMIN, &admin_id)) return;
     
     LinkedList list;
@@ -208,7 +208,7 @@ void handle_admin_get_foods(struct mg_connection *c, struct mg_http_message *hm)
 }
 
 void handle_admin_update_food(struct mg_connection *c, struct mg_http_message *hm) {
-    if (mg_vcasecmp(&hm->method, "PUT") != 0) { send_405_method_not_allowed(c, "PUT required"); return; }
+    if (mg_strcasecmp(hm->method, mg_str("PUT")) != 0) { send_405_method_not_allowed(c, "PUT required"); return; }
     int admin_id; if (!require_role(c, hm, ROLE_ADMIN, &admin_id)) return;
     
     int id = extract_id(hm, "/api/admin/foods");
@@ -217,7 +217,7 @@ void handle_admin_update_food(struct mg_connection *c, struct mg_http_message *h
     Food f;
     if (!load_food_by_id(id, &f) || f.active == STATUS_INACTIVE) { send_404_not_found(c, "Food not found"); return; }
     
-    cJSON *json = cJSON_ParseWithLength(hm->body.ptr, hm->body.len);
+    cJSON *json = cJSON_ParseWithLength(hm->body.buf, hm->body.len);
     if (!json) { send_400_bad_request(c, "Malformed JSON"); return; }
     
     cJSON *name = cJSON_GetObjectItem(json, "name");
@@ -240,7 +240,7 @@ void handle_admin_update_food(struct mg_connection *c, struct mg_http_message *h
 }
 
 void handle_admin_delete_food(struct mg_connection *c, struct mg_http_message *hm) {
-    if (mg_vcasecmp(&hm->method, "DELETE") != 0) { send_405_method_not_allowed(c, "DELETE required"); return; }
+    if (mg_strcasecmp(hm->method, mg_str("DELETE")) != 0) { send_405_method_not_allowed(c, "DELETE required"); return; }
     int admin_id; if (!require_role(c, hm, ROLE_ADMIN, &admin_id)) return;
     
     int id = extract_id(hm, "/api/admin/foods");
@@ -254,14 +254,14 @@ void handle_admin_delete_food(struct mg_connection *c, struct mg_http_message *h
 }
 
 void handle_admin_update_price(struct mg_connection *c, struct mg_http_message *hm) {
-    if (mg_vcasecmp(&hm->method, "PUT") != 0) { send_405_method_not_allowed(c, "PUT required"); return; }
+    if (mg_strcasecmp(hm->method, mg_str("PUT")) != 0) { send_405_method_not_allowed(c, "PUT required"); return; }
     int admin_id; if (!require_role(c, hm, ROLE_ADMIN, &admin_id)) return;
     
     int id = extract_id(hm, "/api/admin/foods");
     Food f;
     if (id <= 0 || !load_food_by_id(id, &f) || f.active == STATUS_INACTIVE) { send_404_not_found(c, "Food not found"); return; }
     
-    cJSON *json = cJSON_ParseWithLength(hm->body.ptr, hm->body.len);
+    cJSON *json = cJSON_ParseWithLength(hm->body.buf, hm->body.len);
     if (!json) { send_400_bad_request(c, "Malformed JSON"); return; }
     
     cJSON *price = cJSON_GetObjectItem(json, "price");
@@ -276,14 +276,14 @@ void handle_admin_update_price(struct mg_connection *c, struct mg_http_message *
 }
 
 void handle_admin_update_stock(struct mg_connection *c, struct mg_http_message *hm) {
-    if (mg_vcasecmp(&hm->method, "PUT") != 0) { send_405_method_not_allowed(c, "PUT required"); return; }
+    if (mg_strcasecmp(hm->method, mg_str("PUT")) != 0) { send_405_method_not_allowed(c, "PUT required"); return; }
     int admin_id; if (!require_role(c, hm, ROLE_ADMIN, &admin_id)) return;
     
     int id = extract_id(hm, "/api/admin/foods");
     Food f;
     if (id <= 0 || !load_food_by_id(id, &f) || f.active == STATUS_INACTIVE) { send_404_not_found(c, "Food not found"); return; }
     
-    cJSON *json = cJSON_ParseWithLength(hm->body.ptr, hm->body.len);
+    cJSON *json = cJSON_ParseWithLength(hm->body.buf, hm->body.len);
     if (!json) { send_400_bad_request(c, "Malformed JSON"); return; }
     
     cJSON *stock = cJSON_GetObjectItem(json, "stock");
@@ -298,7 +298,7 @@ void handle_admin_update_stock(struct mg_connection *c, struct mg_http_message *
 }
 
 void handle_admin_low_stock(struct mg_connection *c, struct mg_http_message *hm) {
-    if (mg_vcasecmp(&hm->method, "GET") != 0) { send_405_method_not_allowed(c, "GET required"); return; }
+    if (mg_strcasecmp(hm->method, mg_str("GET")) != 0) { send_405_method_not_allowed(c, "GET required"); return; }
     int admin_id; if (!require_role(c, hm, ROLE_ADMIN, &admin_id)) return;
     
     LinkedList list;
@@ -329,7 +329,7 @@ void handle_admin_low_stock(struct mg_connection *c, struct mg_http_message *hm)
 }
 
 void handle_admin_out_of_stock(struct mg_connection *c, struct mg_http_message *hm) {
-    if (mg_vcasecmp(&hm->method, "GET") != 0) { send_405_method_not_allowed(c, "GET required"); return; }
+    if (mg_strcasecmp(hm->method, mg_str("GET")) != 0) { send_405_method_not_allowed(c, "GET required"); return; }
     int admin_id; if (!require_role(c, hm, ROLE_ADMIN, &admin_id)) return;
     
     LinkedList list;
@@ -382,7 +382,7 @@ static void filter_public_foods(LinkedList *list) {
 }
 
 void handle_get_menu(struct mg_connection *c, struct mg_http_message *hm) {
-    if (mg_vcasecmp(&hm->method, "GET") != 0) { send_405_method_not_allowed(c, "GET required"); return; }
+    if (mg_strcasecmp(hm->method, mg_str("GET")) != 0) { send_405_method_not_allowed(c, "GET required"); return; }
     
     LinkedList list;
     load_all_foods_to_list(&list);
@@ -415,7 +415,7 @@ void handle_get_menu(struct mg_connection *c, struct mg_http_message *hm) {
 }
 
 void handle_search_food(struct mg_connection *c, struct mg_http_message *hm) {
-    if (mg_vcasecmp(&hm->method, "GET") != 0) { send_405_method_not_allowed(c, "GET required"); return; }
+    if (mg_strcasecmp(hm->method, mg_str("GET")) != 0) { send_405_method_not_allowed(c, "GET required"); return; }
     
     char q[MAX_STR] = {0};
     mg_http_get_var(&hm->query, "q", q, sizeof(q));
@@ -457,7 +457,7 @@ void handle_search_food(struct mg_connection *c, struct mg_http_message *hm) {
 }
 
 void handle_filter_food(struct mg_connection *c, struct mg_http_message *hm) {
-    if (mg_vcasecmp(&hm->method, "GET") != 0) { send_405_method_not_allowed(c, "GET required"); return; }
+    if (mg_strcasecmp(hm->method, mg_str("GET")) != 0) { send_405_method_not_allowed(c, "GET required"); return; }
     
     char cat[MAX_STR] = {0};
     mg_http_get_var(&hm->query, "category", cat, sizeof(cat));
@@ -471,7 +471,7 @@ void handle_filter_food(struct mg_connection *c, struct mg_http_message *hm) {
         Node *prev = NULL;
         while (curr) {
             Food *f = (Food*)curr->data;
-            if (mg_vcasecmp(&mg_str(f->category), cat) != 0) {
+            if (mg_strcasecmp(mg_str(f->category), mg_str(cat)) != 0) {
                 Node *del = curr;
                 if (prev) prev->next = curr->next;
                 else list.head = curr->next;

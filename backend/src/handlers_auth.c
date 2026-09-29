@@ -7,13 +7,13 @@
 #include <string.h>
 
 void handle_student_register(struct mg_connection *c, struct mg_http_message *hm) {
-    if (mg_vcasecmp(&hm->method, "POST") != 0) {
+    if (mg_strcasecmp(hm->method, mg_str("POST")) != 0) {
         send_405_method_not_allowed(c, "POST required");
         return;
     }
     
     // Parse JSON
-    cJSON *json = cJSON_ParseWithLength(hm->body.ptr, hm->body.len);
+    cJSON *json = cJSON_ParseWithLength(hm->body.buf, hm->body.len);
     if (!json) {
         send_400_bad_request(c, "Malformed JSON");
         return;
@@ -64,9 +64,9 @@ void handle_student_register(struct mg_connection *c, struct mg_http_message *hm
 }
 
 void handle_student_login(struct mg_connection *c, struct mg_http_message *hm) {
-    if (mg_vcasecmp(&hm->method, "POST") != 0) { send_405_method_not_allowed(c, "POST required"); return; }
+    if (mg_strcasecmp(hm->method, mg_str("POST")) != 0) { send_405_method_not_allowed(c, "POST required"); return; }
     
-    cJSON *json = cJSON_ParseWithLength(hm->body.ptr, hm->body.len);
+    cJSON *json = cJSON_ParseWithLength(hm->body.buf, hm->body.len);
     if (!json) { send_400_bad_request(c, "Malformed JSON"); return; }
     
     cJSON *email = cJSON_GetObjectItem(json, "email");
@@ -90,7 +90,7 @@ void handle_student_login(struct mg_connection *c, struct mg_http_message *hm) {
     
     crypto_secure_erase(password->valuestring, strlen(password->valuestring));
     
-    char token[64];
+    char token[65];
     create_session(s.id, ROLE_STUDENT, token);
     
     char res[512];
@@ -101,9 +101,9 @@ void handle_student_login(struct mg_connection *c, struct mg_http_message *hm) {
 }
 
 void handle_admin_login(struct mg_connection *c, struct mg_http_message *hm) {
-    if (mg_vcasecmp(&hm->method, "POST") != 0) { send_405_method_not_allowed(c, "POST required"); return; }
+    if (mg_strcasecmp(hm->method, mg_str("POST")) != 0) { send_405_method_not_allowed(c, "POST required"); return; }
     
-    cJSON *json = cJSON_ParseWithLength(hm->body.ptr, hm->body.len);
+    cJSON *json = cJSON_ParseWithLength(hm->body.buf, hm->body.len);
     if (!json) { send_400_bad_request(c, "Malformed JSON"); return; }
     
     cJSON *email = cJSON_GetObjectItem(json, "email");
@@ -124,7 +124,7 @@ void handle_admin_login(struct mg_connection *c, struct mg_http_message *hm) {
     
     crypto_secure_erase(password->valuestring, strlen(password->valuestring));
     
-    char token[64];
+    char token[65];
     create_session(a.id, ROLE_ADMIN, token);
     char res[256];
     snprintf(res, sizeof(res), "{\"success\":true, \"token\":\"%s\", \"role\":\"admin\"}", token);
@@ -133,13 +133,13 @@ void handle_admin_login(struct mg_connection *c, struct mg_http_message *hm) {
 }
 
 void handle_logout(struct mg_connection *c, struct mg_http_message *hm) {
-    if (mg_vcasecmp(&hm->method, "POST") != 0) { send_405_method_not_allowed(c, "POST required"); return; }
+    if (mg_strcasecmp(hm->method, mg_str("POST")) != 0) { send_405_method_not_allowed(c, "POST required"); return; }
     
     struct mg_str *auth = mg_http_get_header(hm, "Authorization");
     if (auth && auth->len > 7) {
         char token[64] = {0};
         size_t len = auth->len - 7 < 64 ? auth->len - 7 : 63;
-        strncpy(token, auth->ptr + 7, len);
+        strncpy(token, auth->buf + 7, len);
         revoke_session(token);
     }
     send_json_message(c, 200, 1, "Logged out successfully");

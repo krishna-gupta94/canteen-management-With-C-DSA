@@ -52,7 +52,7 @@ bool storage_init(void) {
 // --- STUDENTS ---
 int count_students(void) { COUNT_RECORDS("students.dat", Student) }
 int save_student(Student *s) { s->active = STATUS_ACTIVE; s->created_at = time(NULL); SAVE_RECORD("students.dat", Student, count_students, s) }
-bool load_student_by_id(int id, Student *s) { bool ok = LOAD_BY_ID("students.dat", Student, id, s); return ok && s->active; }
+bool load_student_by_id(int id, Student *s) { { LOAD_BY_ID("students.dat", Student, id, s); return s->active; } }
 bool update_student(const Student *s) { UPDATE_RECORD("students.dat", Student, s->id, s) }
 bool delete_student(int id) { Student s; if (load_student_by_id(id, &s)) { s.active = STATUS_INACTIVE; return update_student(&s); } return false; }
 bool find_student_by_email(const char *email, Student *out) {
@@ -67,7 +67,7 @@ bool find_student_by_email(const char *email, Student *out) {
 // --- ADMINS ---
 int count_admins(void) { COUNT_RECORDS("admins.dat", Admin) }
 int save_admin(Admin *a) { a->active = STATUS_ACTIVE; SAVE_RECORD("admins.dat", Admin, count_admins, a) }
-bool load_admin_by_id(int id, Admin *a) { bool ok = LOAD_BY_ID("admins.dat", Admin, id, a); return ok && a->active; }
+bool load_admin_by_id(int id, Admin *a) { { LOAD_BY_ID("admins.dat", Admin, id, a); return a->active; } }
 bool update_admin(const Admin *a) { UPDATE_RECORD("admins.dat", Admin, a->id, a) }
 bool delete_admin(int id) { Admin a; if (load_admin_by_id(id, &a)) { a.active = STATUS_INACTIVE; return update_admin(&a); } return false; }
 bool find_admin_by_email(const char *email, Admin *out) {
@@ -82,7 +82,7 @@ bool find_admin_by_email(const char *email, Admin *out) {
 // --- FOODS ---
 int count_foods(void) { COUNT_RECORDS("foods.dat", Food) }
 int save_food(Food *f) { f->active = STATUS_ACTIVE; SAVE_RECORD("foods.dat", Food, count_foods, f) }
-bool load_food_by_id(int id, Food *f) { bool ok = LOAD_BY_ID("foods.dat", Food, id, f); return ok && f->active; }
+bool load_food_by_id(int id, Food *f) { { LOAD_BY_ID("foods.dat", Food, id, f); return f->active; } }
 bool update_food(const Food *f) { UPDATE_RECORD("foods.dat", Food, f->id, f) }
 bool delete_food(int id) { Food f; if (load_food_by_id(id, &f)) { f.active = STATUS_INACTIVE; return update_food(&f); } return false; }
 

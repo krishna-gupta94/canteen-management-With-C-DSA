@@ -39,7 +39,7 @@ void order_system_cleanup(void) {
 }
 
 static int extract_id(struct mg_http_message *hm, const char *prefix) {
-    const char *p = hm->uri.ptr + strlen(prefix);
+    const char *p = hm->uri.buf + strlen(prefix);
     if (*p == '/') p++;
     return atoi(p);
 }
@@ -58,7 +58,7 @@ static cJSON* cart_item_to_json(CartItem *ci) {
 }
 
 void handle_get_cart(struct mg_connection *c, struct mg_http_message *hm) {
-    if (mg_vcasecmp(&hm->method, "GET") != 0) { send_405_method_not_allowed(c, "GET required"); return; }
+    if (mg_strcasecmp(hm->method, mg_str("GET")) != 0) { send_405_method_not_allowed(c, "GET required"); return; }
     int student_id; if (!require_role(c, hm, ROLE_STUDENT, &student_id)) return;
     
     LinkedList *list = cart_get(student_id);
@@ -85,10 +85,10 @@ void handle_get_cart(struct mg_connection *c, struct mg_http_message *hm) {
 }
 
 void handle_add_cart_item(struct mg_connection *c, struct mg_http_message *hm) {
-    if (mg_vcasecmp(&hm->method, "POST") != 0) { send_405_method_not_allowed(c, "POST required"); return; }
+    if (mg_strcasecmp(hm->method, mg_str("POST")) != 0) { send_405_method_not_allowed(c, "POST required"); return; }
     int student_id; if (!require_role(c, hm, ROLE_STUDENT, &student_id)) return;
     
-    cJSON *json = cJSON_ParseWithLength(hm->body.ptr, hm->body.len);
+    cJSON *json = cJSON_ParseWithLength(hm->body.buf, hm->body.len);
     if (!json) { send_400_bad_request(c, "Malformed JSON"); return; }
     
     cJSON *food_id_node = cJSON_GetObjectItem(json, "food_id");
@@ -110,13 +110,13 @@ void handle_add_cart_item(struct mg_connection *c, struct mg_http_message *hm) {
 }
 
 void handle_update_cart_item(struct mg_connection *c, struct mg_http_message *hm) {
-    if (mg_vcasecmp(&hm->method, "PUT") != 0) { send_405_method_not_allowed(c, "PUT required"); return; }
+    if (mg_strcasecmp(hm->method, mg_str("PUT")) != 0) { send_405_method_not_allowed(c, "PUT required"); return; }
     int student_id; if (!require_role(c, hm, ROLE_STUDENT, &student_id)) return;
     
     int food_id = extract_id(hm, "/api/cart");
     if (food_id <= 0) { send_400_bad_request(c, "Invalid food ID"); return; }
     
-    cJSON *json = cJSON_ParseWithLength(hm->body.ptr, hm->body.len);
+    cJSON *json = cJSON_ParseWithLength(hm->body.buf, hm->body.len);
     if (!json) { send_400_bad_request(c, "Malformed JSON"); return; }
     
     cJSON *qty_node = cJSON_GetObjectItem(json, "quantity");
@@ -133,7 +133,7 @@ void handle_update_cart_item(struct mg_connection *c, struct mg_http_message *hm
 }
 
 void handle_remove_cart_item(struct mg_connection *c, struct mg_http_message *hm) {
-    if (mg_vcasecmp(&hm->method, "DELETE") != 0) { send_405_method_not_allowed(c, "DELETE required"); return; }
+    if (mg_strcasecmp(hm->method, mg_str("DELETE")) != 0) { send_405_method_not_allowed(c, "DELETE required"); return; }
     int student_id; if (!require_role(c, hm, ROLE_STUDENT, &student_id)) return;
     
     int food_id = extract_id(hm, "/api/cart");
@@ -147,7 +147,7 @@ void handle_remove_cart_item(struct mg_connection *c, struct mg_http_message *hm
 }
 
 void handle_clear_cart(struct mg_connection *c, struct mg_http_message *hm) {
-    if (mg_vcasecmp(&hm->method, "DELETE") != 0) { send_405_method_not_allowed(c, "DELETE required"); return; }
+    if (mg_strcasecmp(hm->method, mg_str("DELETE")) != 0) { send_405_method_not_allowed(c, "DELETE required"); return; }
     int student_id; if (!require_role(c, hm, ROLE_STUDENT, &student_id)) return;
     
     cart_clear(student_id);
@@ -159,7 +159,7 @@ void handle_clear_cart(struct mg_connection *c, struct mg_http_message *hm) {
 // ---------------------------------------------------------
 
 void handle_place_order(struct mg_connection *c, struct mg_http_message *hm) {
-    if (mg_vcasecmp(&hm->method, "POST") != 0) { send_405_method_not_allowed(c, "POST required"); return; }
+    if (mg_strcasecmp(hm->method, mg_str("POST")) != 0) { send_405_method_not_allowed(c, "POST required"); return; }
     int student_id; if (!require_role(c, hm, ROLE_STUDENT, &student_id)) return;
     
     LinkedList *list = cart_get(student_id);
@@ -263,7 +263,7 @@ static void free_order_node(void *data) {
 }
 
 void handle_get_student_orders(struct mg_connection *c, struct mg_http_message *hm) {
-    if (mg_vcasecmp(&hm->method, "GET") != 0) { send_405_method_not_allowed(c, "GET required"); return; }
+    if (mg_strcasecmp(hm->method, mg_str("GET")) != 0) { send_405_method_not_allowed(c, "GET required"); return; }
     int student_id; if (!require_role(c, hm, ROLE_STUDENT, &student_id)) return;
     
     LinkedList list;
@@ -299,11 +299,11 @@ void handle_get_student_orders(struct mg_connection *c, struct mg_http_message *
 }
 
 void handle_get_order_detail(struct mg_connection *c, struct mg_http_message *hm) {
-    if (mg_vcasecmp(&hm->method, "GET") != 0) { send_405_method_not_allowed(c, "GET required"); return; }
+    if (mg_strcasecmp(hm->method, mg_str("GET")) != 0) { send_405_method_not_allowed(c, "GET required"); return; }
     
     int user_id = 0;
-    int role = get_user_role(c, hm, &user_id);
-    if (role == ROLE_UNAUTHORIZED) return;
+    int role = 0; if (!require_auth(c, hm, &user_id, &role)) return;
+    
     
     int id = extract_id(hm, "/api/orders");
     if (id <= 0) { send_400_bad_request(c, "Invalid order ID"); return; }
@@ -330,16 +330,16 @@ void handle_get_order_detail(struct mg_connection *c, struct mg_http_message *hm
 }
 
 void handle_get_order_receipt(struct mg_connection *c, struct mg_http_message *hm) {
-    if (mg_vcasecmp(&hm->method, "GET") != 0) { send_405_method_not_allowed(c, "GET required"); return; }
+    if (mg_strcasecmp(hm->method, mg_str("GET")) != 0) { send_405_method_not_allowed(c, "GET required"); return; }
     
     int user_id = 0;
-    int role = get_user_role(c, hm, &user_id);
-    if (role == ROLE_UNAUTHORIZED) return;
+    int role = 0; if (!require_auth(c, hm, &user_id, &role)) return;
+    
     
     // URI format: /api/orders/:id/receipt
     // Extract ID (simple extraction since it's sandwiched)
     char id_str[32] = {0};
-    const char *p1 = hm->uri.ptr + strlen("/api/orders/");
+    const char *p1 = hm->uri.buf + strlen("/api/orders/");
     const char *p2 = strchr(p1, '/');
     if (p2 && (p2 - p1 < sizeof(id_str))) {
         strncpy(id_str, p1, p2 - p1);
@@ -420,7 +420,7 @@ void handle_get_order_receipt(struct mg_connection *c, struct mg_http_message *h
 // ---------------------------------------------------------
 
 void handle_admin_get_orders(struct mg_connection *c, struct mg_http_message *hm) {
-    if (mg_vcasecmp(&hm->method, "GET") != 0) { send_405_method_not_allowed(c, "GET required"); return; }
+    if (mg_strcasecmp(hm->method, mg_str("GET")) != 0) { send_405_method_not_allowed(c, "GET required"); return; }
     int admin_id; if (!require_role(c, hm, ROLE_ADMIN, &admin_id)) return;
     
     char status_str[16] = {0};
@@ -455,7 +455,7 @@ void handle_admin_get_orders(struct mg_connection *c, struct mg_http_message *hm
 }
 
 void handle_admin_process_next_order(struct mg_connection *c, struct mg_http_message *hm) {
-    if (mg_vcasecmp(&hm->method, "POST") != 0) { send_405_method_not_allowed(c, "POST required"); return; }
+    if (mg_strcasecmp(hm->method, mg_str("POST")) != 0) { send_405_method_not_allowed(c, "POST required"); return; }
     int admin_id; if (!require_role(c, hm, ROLE_ADMIN, &admin_id)) return;
     
     if (queue_is_empty(&order_queue)) {
@@ -474,7 +474,7 @@ void handle_admin_process_next_order(struct mg_connection *c, struct mg_http_mes
 }
 
 void handle_admin_update_order_status(struct mg_connection *c, struct mg_http_message *hm) {
-    if (mg_vcasecmp(&hm->method, "PUT") != 0) { send_405_method_not_allowed(c, "PUT required"); return; }
+    if (mg_strcasecmp(hm->method, mg_str("PUT")) != 0) { send_405_method_not_allowed(c, "PUT required"); return; }
     int admin_id; if (!require_role(c, hm, ROLE_ADMIN, &admin_id)) return;
     
     int id = extract_id(hm, "/api/admin/orders");
@@ -486,7 +486,7 @@ void handle_admin_update_order_status(struct mg_connection *c, struct mg_http_me
         return;
     }
     
-    cJSON *json = cJSON_ParseWithLength(hm->body.ptr, hm->body.len);
+    cJSON *json = cJSON_ParseWithLength(hm->body.buf, hm->body.len);
     if (!json) { send_400_bad_request(c, "Malformed JSON"); return; }
     
     cJSON *status = cJSON_GetObjectItem(json, "status");
@@ -523,7 +523,7 @@ void handle_admin_update_order_status(struct mg_connection *c, struct mg_http_me
 }
 
 void handle_admin_orders_queue(struct mg_connection *c, struct mg_http_message *hm) {
-    if (mg_vcasecmp(&hm->method, "GET") != 0) { send_405_method_not_allowed(c, "GET required"); return; }
+    if (mg_strcasecmp(hm->method, mg_str("GET")) != 0) { send_405_method_not_allowed(c, "GET required"); return; }
     int admin_id; if (!require_role(c, hm, ROLE_ADMIN, &admin_id)) return;
     
     cJSON *root = cJSON_CreateObject();

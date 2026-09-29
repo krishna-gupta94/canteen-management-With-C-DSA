@@ -45,7 +45,7 @@ void create_session(int user_id, int role, char *out_token) {
     s->expires_at = time(NULL) + (24 * 3600); // 24 hours
     
     ll_insert_last(&active_sessions, s);
-    strncpy(out_token, s->token, 64);
+    strncpy(out_token, s->token, 65);
 }
 
 static bool cmp_token(void *a, void *b) {
@@ -76,15 +76,15 @@ bool revoke_session(const char *token) {
 
 bool require_auth(struct mg_connection *c, struct mg_http_message *hm, int *out_user_id, int *out_role) {
     struct mg_str *auth_header = mg_http_get_header(hm, "Authorization");
-    if (!auth_header || auth_header->len < 8 || strncmp(auth_header->ptr, "Bearer ", 7) != 0) {
+    if (!auth_header || auth_header->len < 8 || strncmp(auth_header->buf, "Bearer ", 7) != 0) {
         send_401_unauthorized(c, "Missing or malformed Authorization header");
         return false;
     }
     
-    char token[64] = {0};
+    char token[65] = {0};
     size_t token_len = auth_header->len - 7;
-    if (token_len >= 64) token_len = 63;
-    strncpy(token, auth_header->ptr + 7, token_len);
+    if (token_len >= 65) token_len = 64;
+    strncpy(token, auth_header->buf + 7, token_len);
     
     if (!validate_session(token, out_user_id, out_role)) {
         send_401_unauthorized(c, "Invalid or expired token");
