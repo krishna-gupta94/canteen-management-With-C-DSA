@@ -83,7 +83,7 @@ export function Login() {
             type="password" 
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="••••••••"
+            placeholder="ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½"
             required 
           />
           <Button type="submit" className="w-full mt-sm" isLoading={loading}>
