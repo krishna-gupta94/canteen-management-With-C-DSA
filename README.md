@@ -1,72 +1,129 @@
-<div align="center">
-  <img src="https://readme-typing-svg.demolab.com?font=Poppins&weight=700&size=45&pause=1000&color=2563EB&center=true&vCenter=true&width=800&height=100&lines=Canteen+Management+System;Custom+C+Data+Structures;Modern+React+Frontend;Real-Time+Order+Queue" alt="Typing SVG" />
-</div>
+# 🍽️ CampusFeast - Canteen Management System (C + DSA & Modern React)
 
-<div align="center">
-  <img src="https://img.shields.io/badge/C-00599C?style=for-the-badge&logo=c&logoColor=white" alt="C" />
-  <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React" />
-  <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
-  <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind" />
-  <img src="https://img.shields.io/badge/Vite-B73BFE?style=for-the-badge&logo=vite&logoColor=FFD62E" alt="Vite" />
-  <img src="https://img.shields.io/badge/Playwright-2EAD33?style=for-the-badge&logo=playwright&logoColor=white" alt="Playwright" />
-</div>
+A full-stack, production-grade Canteen Management System featuring a high-performance **C + DSA Native Backend** and a modern, responsive **React (TypeScript) Frontend**.
 
-<br />
+---
 
-A full-stack **Canteen Management System** built with a **C Backend** (utilizing custom Data Structures and Algorithms like Linked Lists and Queues) and a modern **React (TypeScript) Frontend**. 
+## 🏗️ Architecture Overview
 
-## 🚀 Tech Stack Highlights
-* 🗄️ **Backend:** C, Mongoose (Embedded Web Server), cJSON (JSON parsing)
-* 💾 **Database:** Custom file-based storage (`.dat` files) using custom C Data Structures.
-* 🎨 **Frontend:** React, TypeScript, Vite, Tailwind CSS.
-* 🧪 **Testing:** Playwright for E2E Cross-Role Synchronization Tests.
-
-## ✨ Key Features
-- 🎓 **Student Portal:** Browse the menu, manage cart, place orders, and track order status in real-time.
-- 👨‍🍳 **Admin Portal:** Manage food inventory (update stock and availability), view all orders, and process the active order queue (`Pending` -> `Preparing` -> `Ready` -> `Completed`).
-- 🔐 **Unified Login:** Single login interface that securely routes to the correct portal based on user role (Admin vs Student).
-- 🔄 **Cross-Role Sync:** Actions taken by a student (like placing an order) are immediately available in the Admin's queue.
-- 🌱 **Mock Data Seeding:** Easy-to-use C script to seed realistic demo data for local development and testing.
-
-## ⚙️ How to Run
-
-### 1. Reset and Seed Demo Data (Recommended)
-To start fresh with demo accounts and food items, run the seeding script from the root directory:
-```bat
-.\reset_and_seed_demo.bat
+```
+canteen-management-With-C-DSA/
+├── backend/                  # C + DSA Native Backend
+│   ├── src/                  # C Source files
+│   │   ├── main.c            # Application entrypoint
+│   │   ├── server.c          # Mongoose HTTP event loop
+│   │   ├── router.c          # REST API endpoint router (37 endpoints)
+│   │   ├── handlers_*.c      # Auth, Food, Order & Analytics handlers
+│   │   ├── cart.c            # In-memory DSA cart management
+│   │   ├── storage.c         # Binary record persistence (.dat files)
+│   │   ├── auth.c            # Session token manager (Linked List)
+│   │   ├── auth_crypto.c     # SHA-256 password hashing & verification
+│   │   └── response.c        # JSON serialization & CORS middleware
+│   ├── src/dsa/              # Data Structures & Algorithms Library
+│   │   ├── linked_list.c     # Doubly/Singly Linked List
+│   │   ├── queue.c           # FIFO Queue (Kitchen order workflow)
+│   │   ├── priority_queue.c  # Max-Heap / Priority Queue (Best-sellers)
+│   │   ├── stack.c           # LIFO Stack
+│   │   ├── search.c          # Linear & Binary search algorithms
+│   │   └── sort.c            # QuickSort & MergeSort algorithms
+│   ├── include/              # Header definitions
+│   ├── data/                 # Binary storage files (.dat)
+│   ├── tests/                # Native DSA & storage test runners
+│   └── build.bat             # GCC compilation script
+│
+├── frontend/                 # Redesigned Modern Frontend
+│   ├── src/
+│   │   ├── api/              # Centralized API client modules
+│   │   ├── context/          # Reactive AuthContext & session state
+│   │   ├── hooks/            # useAuth, useFoods, useCart, useOrders
+│   │   ├── types/            # TypeScript interfaces for all entities
+│   │   ├── App.tsx           # Modern responsive single-page application
+│   │   └── index.css         # Styling system (Monochrome + Royal Blue)
+│   ├── dist/                 # Production-built bundle
+│   └── package.json
+│
+├── frontend_old_backup/      # Complete safety backup of old frontend
+├── tests/
+│   └── integration_test.ps1  # Automated 32-test API integration suite
+└── docs/
+    ├── API_INVENTORY.md          # Complete 37-endpoint REST API audit
+    ├── FEATURE_PARITY_MATRIX.md  # 28-feature frontend-to-backend parity mapping
+    └── INTEGRATION_TEST_REPORT.md# Complete integration test & architecture report
 ```
 
-### 2. Start the Backend Server (C)
-Open a terminal in the root folder and run:
-```bat
+---
+
+## ⚡ Key Features
+
+### Student Portal
+- **Authentication:** Student registration and secure login with session tokens.
+- **Dynamic Menu:** Live food catalog with category filters, substring search, and price sorting.
+- **Cart Management:** Add, increment, decrement, and clear cart items synchronized directly with the C backend.
+- **Order Placement:** Atomic checkout with backend stock deduction.
+- **Live Order Tracking:** Stepper visualizing progress (`Pending` → `Preparing` → `Ready` → `Completed`).
+- **Order Receipts:** Formatted printable receipt with itemized breakdown and student metadata.
+
+### Administrator Workspace
+- **Executive Dashboard:** Live metrics for revenue, pending orders, completed orders, and stock alerts.
+- **FIFO Order Queue:** Real-time queue view with one-click "Process Next Order" dequeueing.
+- **Master Orders Table:** Filter orders by status and advance preparation states.
+- **Food Catalog Management:** Add new dishes, modify prices/stocks, and delete items.
+- **Inventory Warnings:** Automated detection of low-stock and out-of-stock items.
+- **Analytics & Sales:** Best-selling leaderboard powered by the C Priority Queue algorithm and daily revenue breakdown.
+
+---
+
+## 🚀 How to Run the Application
+
+### 1. Start the C Backend Server
+Make sure you have GCC (MinGW-w64) installed:
+```bash
 cd backend
+.\build.bat
 .\canteen_server.exe
 ```
-*The server will start on `http://localhost:8080`.*
+The backend server runs on `http://localhost:8080` with native CORS enabled.
 
-### 3. Start the Frontend (React)
-Open a **new** terminal window and run:
-```bat
+### 2. Start the Frontend
+In a new terminal window:
+```bash
 cd frontend
 npm install
 npm run dev
 ```
-*The frontend will be available at `http://localhost:5173/`.*
+Open your browser and navigate to `http://localhost:5173`.
 
-## 🔑 Demo Accounts
-Use the following credentials to test the application:
-
-**👨‍🍳 Admin Account:**
-- **Email:** `admin.demo@canteen.local`
-- **Password:** `demo_admin123`
-
-**🎓 Student Account:**
-- **Email:** `aarav.demo@canteen.local`
-- **Password:** `demo_pass123`
-
-## 🧪 Running Tests
-To run the Playwright end-to-end tests for cross-role synchronization:
-```bat
+### 3. Build Frontend for Production
+```bash
 cd frontend
-npx playwright test
+npm run build
 ```
+Generates optimized, minified production assets in `frontend/dist/`.
+
+---
+
+## 🧪 Run Automated Integration Tests
+
+To run the automated 32-test integration test suite against the running C backend:
+```powershell
+powershell -ExecutionPolicy Bypass -File tests/integration_test.ps1
+```
+All 32 tests verify health, authentication, menu search, cart synchronization, checkout, FIFO order processing, admin catalog operations, and analytics.
+
+---
+
+## 🔑 Default Credentials
+
+- **Administrator:**
+  - Email: `admin.demo@canteen.local`
+  - Password: `demo_admin123`
+- **Student:**
+  - Register any student account directly in the UI (`/register`) or use `tester@college.edu` / `password123`.
+
+---
+
+## 📖 Technical Documentation
+
+- [API Inventory (`docs/API_INVENTORY.md`)](file:///d:/canteen-management-With-C-DSA/docs/API_INVENTORY.md)
+- [Feature Parity Matrix (`docs/FEATURE_PARITY_MATRIX.md`)](file:///d:/canteen-management-With-C-DSA/docs/FEATURE_PARITY_MATRIX.md)
+- [Integration Test Report (`docs/INTEGRATION_TEST_REPORT.md`)](file:///d:/canteen-management-With-C-DSA/docs/INTEGRATION_TEST_REPORT.md)

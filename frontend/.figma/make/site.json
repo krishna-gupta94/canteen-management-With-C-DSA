@@ -1,0 +1,10 @@
+{
+  "description": "A responsive canteen platform where students discover, order, and track meals while staff manage food, inventory, orders, and sales.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}

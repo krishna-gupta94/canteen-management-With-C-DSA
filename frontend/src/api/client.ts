@@ -11,6 +11,7 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
   const token = localStorage.getItem('token');
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
+    ...(options.headers || {})
   };
 
   if (token) {
@@ -19,23 +20,36 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
 
   const config: RequestInit = {
     ...options,
-    headers: {
-      ...headers,
-      ...options.headers,
-    },
+    headers,
   };
 
-  const response = await fetch(`${BASE_URL}${endpoint}`, config);
-  
+  let response: Response;
+  try {
+    response = await fetch(`${BASE_URL}${endpoint}`, config);
+  } catch (err: any) {
+    throw new ApiError(0, err?.message || 'Network connection error. Is backend running?');
+  }
+
   if (response.status === 401) {
     localStorage.removeItem('token');
     window.dispatchEvent(new Event('auth-expired'));
   }
 
-  const data = await response.json().catch(() => null);
+  let data: any = null;
+  const contentType = response.headers.get('content-type');
+  if (contentType && contentType.includes('application/json')) {
+    data = await response.json().catch(() => null);
+  } else {
+    const text = await response.text().catch(() => '');
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = { message: text };
+    }
+  }
 
   if (!response.ok) {
-    throw new ApiError(response.status, data?.message || 'An unexpected error occurred.');
+    throw new ApiError(response.status, data?.message || `Request failed with status ${response.status}`);
   }
 
   return data;

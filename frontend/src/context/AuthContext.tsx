@@ -1,12 +1,13 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { api } from '../api/client';
-import { AuthResponse, User, ApiResponse } from '../types';
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import { authApi } from '../api/auth.api';
+import { User, Role } from '../types/auth.types';
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (token: string) => Promise<void>;
+  login: (token: string, fallbackUser?: Partial<User>) => Promise<void>;
   logout: () => void;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -15,60 +16,75 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const checkAuth = async () => {
+  const checkAuth = useCallback(async () => {
     const token = localStorage.getItem('token');
     if (!token) {
+      setUser(null);
       setLoading(false);
       return;
     }
 
     try {
-      const res = await api.get<any>('/auth/me');
+      const res = await authApi.getMe();
       if (res && res.id !== undefined) {
+        // Backend roles: 0 = Student, 1 = Admin
+        const role: Role = (res.role === 1 || res.role === 2) ? 'ROLE_ADMIN' : 'student';
+        const savedName = localStorage.getItem('user_name') || (role === 'ROLE_ADMIN' ? 'Administrator' : 'Student');
+        const savedEmail = localStorage.getItem('user_email') || '';
+
         setUser({
           id: res.id,
-          name: res.role === 1 ? 'Admin User' : 'Student User', // fallback names as backend doesn't return name here
-          email: '',
-          role: res.role === 1 ? 'ROLE_ADMIN' : 'student'
+          name: savedName,
+          email: savedEmail,
+          role
         });
       } else {
         localStorage.removeItem('token');
         setUser(null);
       }
-    } catch (e) {
+    } catch {
       localStorage.removeItem('token');
       setUser(null);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     checkAuth();
-    
+
     const handleExpired = () => {
       setUser(null);
       localStorage.removeItem('token');
+      localStorage.removeItem('user_name');
+      localStorage.removeItem('user_email');
     };
+
     window.addEventListener('auth-expired', handleExpired);
     return () => window.removeEventListener('auth-expired', handleExpired);
-  }, []);
+  }, [checkAuth]);
 
-  const login = async (token: string) => {
+  const login = async (token: string, fallbackUser?: Partial<User>) => {
     localStorage.setItem('token', token);
+    if (fallbackUser?.name) localStorage.setItem('user_name', fallbackUser.name);
+    if (fallbackUser?.email) localStorage.setItem('user_email', fallbackUser.email);
     await checkAuth();
   };
 
   const logout = async () => {
     try {
-      await api.post('/auth/logout');
-    } catch(e) {}
+      await authApi.logout();
+    } catch {
+      // Ignore network errors on logout
+    }
     localStorage.removeItem('token');
+    localStorage.removeItem('user_name');
+    localStorage.removeItem('user_email');
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, refreshUser: checkAuth }}>
       {children}
     </AuthContext.Provider>
   );

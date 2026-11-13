@@ -21,5 +21,7 @@ frontend/playwright/.cache/
 # Backend Data Storage (Ignore auto-generated database files)
 backend/data/*.dat
 
-# Ignore large archives
+# Ignore large archives and temporary migration folders
 mingw.zip
+frontend_old_backup/
+Redesign Canteen Management App/
