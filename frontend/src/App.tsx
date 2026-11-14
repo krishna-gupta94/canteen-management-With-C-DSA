@@ -321,19 +321,20 @@ function PageHeader({
   action?: ReactNode;
   image?: string;
 }) {
+  const bg = image || images.hero;
   return (
-    <header className="page-heading">
+    <header
+      className="page-heading page-heading-hero"
+      style={{
+        backgroundImage: `linear-gradient(90deg, rgba(11, 13, 20, 0.96) 0%, rgba(11, 13, 20, 0.82) 48%, rgba(11, 13, 20, 0.28) 100%), url(${bg})`,
+      }}
+    >
       <div className="heading-text">
-        {eyebrow && <span className="eyebrow">{eyebrow}</span>}
+        {eyebrow && <span className="eyebrow light">{eyebrow}</span>}
         <h1>{title}</h1>
         {copy && <p>{copy}</p>}
       </div>
       {action && <div className="heading-action">{action}</div>}
-      {image && (
-        <div className="header-thumbnail">
-          <img src={image} alt="" />
-        </div>
-      )}
     </header>
   );
 }
@@ -828,6 +829,7 @@ function MenuPage({
   return (
     <>
       <PageHeader
+        eyebrow="Campus dining"
         title="Menu"
         copy="Freshly prepared dishes available today."
         image={images.dosa}
@@ -910,7 +912,12 @@ function CartPage({
   if (!items.length)
     return (
       <>
-        <PageHeader title="Cart" />
+        <PageHeader
+          eyebrow="Active tray"
+          title="Cart"
+          copy="Your tray is currently empty. Browse dishes to add."
+          image={images.wrap}
+        />
         <EmptyState
           title="Your cart is empty"
           copy="Browse today's fresh menu to add dishes to your order."
@@ -922,8 +929,9 @@ function CartPage({
   return (
     <>
       <PageHeader
+        eyebrow="Active tray"
         title="Cart"
-        copy={`${items.reduce((s, f) => s + cart[f.id], 0)} items selected`}
+        copy={`${items.reduce((s, f) => s + cart[f.id], 0)} items selected for kitchen pickup`}
         action={
           <button className="text-danger" onClick={clear}>
             Clear cart
@@ -997,6 +1005,7 @@ function OrdersPage({
   return (
     <>
       <PageHeader
+        eyebrow="Activity"
         title="Your orders"
         copy="Track current orders and revisit past favourites."
         image={images.curry}
@@ -1077,6 +1086,7 @@ function OrderDetail({
         title={`Order #${order.id}`}
         copy={`Placed ${order.date}`}
         action={<Badge status={order.status} />}
+        image={images.thali}
       />
       {order.status === "Cancelled" && (
         <div className="cancel-alert">
@@ -1244,9 +1254,10 @@ function ProfilePage({
   return (
     <>
       <PageHeader
+        eyebrow="Account"
         title="Profile"
         copy="Manage your personal and account information."
-        image={admin ? images.login : images.dosa}
+        image={admin ? images.login : images.bowl}
       />
       <div className="profile-layout">
         <section className="profile-card">
@@ -1619,8 +1630,10 @@ function InventoryPage({ foods }: { foods: (Food & { id: number })[] }) {
   return (
     <>
       <PageHeader
+        eyebrow="Stock audit"
         title="Inventory"
         copy="Manage real-time inventory counts and stock warnings."
+        image={images.thali}
         action={
           <div className="stock-badges" style={{ display: "flex", gap: "0.5rem" }}>
             <Badge status="Low Stock">{low.length} Low Stock</Badge>
@@ -1754,8 +1767,10 @@ function FoodsPage({
   return (
     <>
       <PageHeader
+        eyebrow="Catalog"
         title="Food management"
         copy="Update your catalog, pricing and availability."
+        image={images.dosa}
         action={
           <Button onClick={() => setEditing(null)}>
             <Icon name="plus" /> Add Food
@@ -2005,7 +2020,12 @@ function AdminOrders({
   );
   return (
     <>
-      <PageHeader title="Master orders" copy="Search, monitor and progress every canteen order." />
+      <PageHeader
+        eyebrow="Kitchen orders"
+        title="Master orders"
+        copy="Search, monitor and progress every canteen order."
+        image={images.curry}
+      />
       <div className="filter-bar">
         <div className="search">
           <Icon name="search" />
@@ -2055,6 +2075,7 @@ function QueuePage({
         eyebrow="Live kitchen view"
         title="FIFO order queue"
         copy={`${queue.length} orders in the active preparation queue.`}
+        image={images.login}
         action={
           <div className="header-actions" style={{ display: "flex", gap: "0.5rem" }}>
             <Button variant="secondary" onClick={onRefresh}>
@@ -2130,8 +2151,10 @@ function AnalyticsPage({ foods }: { foods: (Food & { id: number })[] }) {
   return (
     <>
       <PageHeader
+        eyebrow="Insights"
         title="Analytics"
         copy="Understand what students love and how the menu performs."
+        image={images.hero}
       />
       <div className="metric-grid">
         <MetricCard label="Items sold" value={String(totalSold)} meta="Campus favorite meals" icon="food" />
@@ -2210,8 +2233,10 @@ function SalesPage() {
   return (
     <>
       <PageHeader
+        eyebrow="Financial records"
         title="Sales"
         copy="Review finalized revenue and daily canteen performance."
+        image={images.bowl}
         action={
           <label className="date-input">
             Date{" "}
