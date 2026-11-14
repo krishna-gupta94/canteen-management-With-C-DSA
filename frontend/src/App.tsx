@@ -235,13 +235,9 @@ function InteractionEffects({ route }: { route: string }) {
   }, [route]);
 
   return (
-    <>
-      <div className="reading-progress" aria-hidden="true">
-        <span style={{ transform: `scaleX(${progress / 100})` }} />
-      </div>
-      <div className="ambient-blur ambient-1" aria-hidden="true" />
-      <div className="ambient-blur ambient-2" aria-hidden="true" />
-    </>
+    <div className="reading-progress" aria-hidden="true">
+      <span style={{ transform: `scaleX(${progress / 100})` }} />
+    </div>
   );
 }
 
@@ -597,35 +593,34 @@ function StudentLayout({
           }}
         >
           <div className="floating-cart-icon">
-            <Icon name="cart" size={20} />
+            <Icon name="cart" size={18} />
             <span className="floating-cart-count">{count}</span>
           </div>
           <div className="floating-cart-info">
-            <span>Tray Active</span>
+            <span>Tray</span>
             <strong>{count} {count === 1 ? "dish" : "dishes"}</strong>
           </div>
           <div className="floating-cart-cta">
-            <span>Checkout</span>
+            <span>View cart</span>
             <Icon name="arrow" size={14} />
           </div>
         </div>
       )}
       <nav className="bottom-nav">
-        {nav
-          .filter((n) => n.label !== "Orders")
-          .map((n) => (
-            <button
-              key={n.path}
-              onClick={() => go(n.path)}
-              className={active(n.path) ? "active" : ""}
-            >
-              <span>
-                <Icon name={n.icon} />
-                {n.icon === "cart" && count > 0 && <b>{count}</b>}
-              </span>
-              {n.label}
-            </button>
-          ))}
+        {nav.map((n) => (
+          <button
+            key={n.path}
+            onClick={() => go(n.path)}
+            className={active(n.path) ? "active" : ""}
+            aria-label={n.label}
+          >
+            <span>
+              <Icon name={n.icon} />
+              {n.icon === "cart" && count > 0 && <b>{count}</b>}
+            </span>
+            {n.label}
+          </button>
+        ))}
       </nav>
     </div>
   );
@@ -686,28 +681,29 @@ function StudentHome({
     <>
       <section className="welcome-row">
         <div>
-          <p>Good afternoon, {studentName}</p>
-          <h1>What are you craving today?</h1>
+          <span className="eyebrow">Campus dining</span>
+          <h1>Today's kitchen</h1>
         </div>
-        <Badge status="Available">Canteen open until 4:30 PM</Badge>
+        <Badge status="Available">Kitchen open · Closes 4:30 PM</Badge>
       </section>
       <section
         className="hero"
         style={{
-          backgroundImage: `linear-gradient(90deg, rgba(9, 10, 16, 0.94) 0%, rgba(9, 10, 16, 0.72) 48%, rgba(9, 10, 16, 0.2) 100%), url(${images.hero})`,
+          backgroundImage: `linear-gradient(90deg, rgba(13, 15, 20, 0.94) 0%, rgba(13, 15, 20, 0.72) 48%, rgba(13, 15, 20, 0.2) 100%), url(${images.hero})`,
         }}
       >
         <div>
-          <span className="eyebrow light">✦ Artisanal Campus Dining</span>
-          <h2>
-            Fresh Taste.
-            <br />
-            Crafted for You.
-          </h2>
-          <p>Gourmet meals made fresh daily. Order instantly and skip the counter queue.</p>
-          <Button onClick={() => go("/student/menu")} icon="arrow">
-            Explore 3D Menu
-          </Button>
+          <span className="eyebrow light">Daily preparation</span>
+          <h2>Fresh meals for your campus breaks</h2>
+          <p>Order ahead from the kitchen and collect at the counter without waiting.</p>
+          <div className="hero-actions">
+            <Button onClick={() => go("/student/menu")} icon="arrow">
+              View menu
+            </Button>
+            <Button variant="secondary" onClick={() => go("/student/orders")}>
+              Past orders
+            </Button>
+          </div>
         </div>
       </section>
       <section className="quick-grid">
@@ -716,9 +712,9 @@ function StudentHome({
             <Icon name="cart" />
           </span>
           <div>
-            <small>Quick access</small>
-            <h3>My Cart</h3>
-            <p>{Object.values(cart).reduce((a, b) => a + b, 0)} items waiting</p>
+            <small>Active tray</small>
+            <h3>Cart</h3>
+            <p>{Object.values(cart).reduce((a, b) => a + b, 0)} items selected</p>
           </div>
           <Icon name="chevron" />
         </button>
@@ -727,9 +723,9 @@ function StudentHome({
             <Icon name="orders" />
           </span>
           <div>
-            <small>Your orders</small>
-            <h3>Order History</h3>
-            <p>Track and reorder</p>
+            <small>Activity</small>
+            <h3>Order history</h3>
+            <p>Track live prep and receipts</p>
           </div>
           <Icon name="chevron" />
         </button>
@@ -751,9 +747,9 @@ function StudentHome({
       {foods.length >= 2 && (
         <section className="recent-strip">
           <div>
-            <span className="eyebrow light">One-tap reorder</span>
-            <h2>Your usual, without the wait.</h2>
-            <p>{foods[0]?.name} with {foods[1]?.name}</p>
+            <span className="eyebrow light">Quick reorder</span>
+            <h2>Order your usual</h2>
+            <p>{foods[0]?.name} and {foods[1]?.name}</p>
           </div>
           <Button
             variant="secondary"
@@ -762,7 +758,7 @@ function StudentHome({
               if (foods[1]) add(foods[1].id);
             }}
           >
-            Add previous order
+            Add to cart
           </Button>
         </section>
       )}
@@ -832,15 +828,15 @@ function MenuPage({
   return (
     <>
       <PageHeader
-        title="Today's menu"
-        copy="Freshly prepared breakfast, meals and snacks for your breaks."
+        title="Menu"
+        copy="Freshly prepared dishes available today."
         image={images.dosa}
       />
       <div className="filter-bar">
         <div className="search">
           <Icon name="search" />
           <input
-            placeholder="Search food by name..."
+            placeholder="Search dishes..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -914,11 +910,11 @@ function CartPage({
   if (!items.length)
     return (
       <>
-        <PageHeader title="Your cart" />
+        <PageHeader title="Cart" />
         <EmptyState
-          title="Your cart is ready for something delicious"
-          copy="Browse today’s fresh menu and add a campus favourite."
-          action={<Button onClick={() => go("/student/menu")}>Explore Menu</Button>}
+          title="Your cart is empty"
+          copy="Browse today's fresh menu to add dishes to your order."
+          action={<Button onClick={() => go("/student/menu")}>View menu</Button>}
         />
       </>
     );
@@ -926,7 +922,7 @@ function CartPage({
   return (
     <>
       <PageHeader
-        title="Your cart"
+        title="Cart"
         copy={`${items.reduce((s, f) => s + cart[f.id], 0)} items selected`}
         action={
           <button className="text-danger" onClick={clear}>
@@ -962,10 +958,10 @@ function CartPage({
           ))}
         </div>
         <aside className="order-summary">
-          <span className="eyebrow">Order summary</span>
-          <h2>Almost there.</h2>
+          <span className="eyebrow">Summary</span>
+          <h2>Order total</h2>
           <div>
-            <span>Item subtotal</span>
+            <span>Subtotal</span>
             <strong>{money(total)}</strong>
           </div>
           <div>
@@ -977,12 +973,12 @@ function CartPage({
             <strong>{money(total)}</strong>
           </div>
           <Button className="full" onClick={place} disabled={loading}>
-            {loading ? <span className="loader" /> : <>Place Order <Icon name="arrow" /></>}
+            {loading ? <span className="loader" /> : <>Place order <Icon name="arrow" /></>}
           </Button>
           <Button className="full" variant="ghost" onClick={() => go("/student/menu")}>
-            Continue Shopping
+            Continue browsing
           </Button>
-          <small>Pay at the canteen counter when you collect.</small>
+          <small>Pay at the counter when collecting your meal.</small>
         </aside>
       </div>
     </>
@@ -1096,12 +1092,12 @@ function OrderDetail({
               ? "Your order is ready for pickup"
               : order.status === "Completed"
                 ? "Order collected"
-                : "The kitchen is on it."}
+                : "Order received by kitchen"}
           </h2>
           <p>
             {order.status === "Preparing"
-              ? "Your food is being freshly prepared. We’ll let you know when it’s ready."
-              : "Follow the progress of your order below."}
+              ? "Your food is being prepared in the kitchen."
+              : "Track preparation and counter pickup status below."}
           </p>
           <div className="stepper">
             {stages.map((s, i) => (
@@ -1364,7 +1360,7 @@ function AdminLayout({
       {open && <button className="scrim" onClick={() => setOpen(false)} />}
       <main className="admin-main">
         <header className="admin-header">
-          <button className="hamburger" onClick={() => setOpen(true)}>
+          <button className="hamburger" onClick={() => setOpen(true)} aria-label="Open navigation menu">
             <Icon name="menu" />
           </button>
           <div>
@@ -1433,9 +1429,9 @@ function AdminDashboard({
   return (
     <>
       <PageHeader
-        eyebrow="Canteen Portal"
-        title="Good afternoon, Administrator"
-        copy="Here’s what’s happening in your canteen right now."
+        eyebrow="Kitchen operations"
+        title="Dashboard"
+        copy="Live orders, daily revenue and inventory alerts."
         image={images.hero}
         action={
           <Button onClick={() => go("/admin/orders/queue")}>
