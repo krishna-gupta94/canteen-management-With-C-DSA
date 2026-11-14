@@ -11,9 +11,8 @@ import { User } from "./types/auth.types";
 import { DashboardSummary, PopularFood, DailySales } from "./types/admin.types";
 
 const images = {
-  hero: "https://images.unsplash.com/photo-1736239092023-ba677fd6751c?auto=format&fit=crop&w=1800&q=88",
-  login:
-    "https://images.unsplash.com/photo-1665660710687-b44c50751054?auto=format&fit=crop&w=1400&q=88",
+  hero: "/hero-3d.jpg",
+  login: "/cards-3d.jpg",
   dosa: "https://images.unsplash.com/photo-1668236543090-82eba5ee5976?auto=format&fit=crop&w=900&q=85",
   curry:
     "https://images.unsplash.com/photo-1631515242808-497c3fbd3972?auto=format&fit=crop&w=900&q=85",
@@ -584,6 +583,33 @@ function StudentLayout({
         </div>
       </header>
       <div className="student-content">{children}</div>
+      {count > 0 && path !== "/student/cart" && (
+        <div
+          className="floating-cart-pill"
+          onClick={() => go("/student/cart")}
+          role="button"
+          tabIndex={0}
+          aria-label="View Cart Tray"
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              go("/student/cart");
+            }
+          }}
+        >
+          <div className="floating-cart-icon">
+            <Icon name="cart" size={20} />
+            <span className="floating-cart-count">{count}</span>
+          </div>
+          <div className="floating-cart-info">
+            <span>Tray Active</span>
+            <strong>{count} {count === 1 ? "dish" : "dishes"}</strong>
+          </div>
+          <div className="floating-cart-cta">
+            <span>Checkout</span>
+            <Icon name="arrow" size={14} />
+          </div>
+        </div>
+      )}
       <nav className="bottom-nav">
         {nav
           .filter((n) => n.label !== "Orders")
@@ -668,19 +694,19 @@ function StudentHome({
       <section
         className="hero"
         style={{
-          backgroundImage: `linear-gradient(90deg,rgba(9,9,11,.92) 0%,rgba(9,9,11,.65) 42%,rgba(9,9,11,.06) 78%),url(${images.hero})`,
+          backgroundImage: `linear-gradient(90deg, rgba(9, 10, 16, 0.94) 0%, rgba(9, 10, 16, 0.72) 48%, rgba(9, 10, 16, 0.2) 100%), url(${images.hero})`,
         }}
       >
         <div>
-          <span className="eyebrow light">Your campus kitchen</span>
+          <span className="eyebrow light">✦ Artisanal Campus Dining</span>
           <h2>
-            Fresh Food.
+            Fresh Taste.
             <br />
-            Made for Your Break.
+            Crafted for You.
           </h2>
-          <p>Made today, served warm, and ready when you are.</p>
+          <p>Gourmet meals made fresh daily. Order instantly and skip the counter queue.</p>
           <Button onClick={() => go("/student/menu")} icon="arrow">
-            Explore Menu
+            Explore 3D Menu
           </Button>
         </div>
       </section>
@@ -2338,16 +2364,16 @@ export default function App() {
           minHeight: "100vh",
           alignItems: "center",
           justifyContent: "center",
-          background: "#FAFAFA",
+          background: "#090A10",
         }}
       >
         <span
           className="loader"
           style={{
-            width: 36,
-            height: 36,
-            border: "3px solid #E4E4E7",
-            borderTopColor: "#2563EB",
+            width: 40,
+            height: 40,
+            border: "3px solid rgba(255, 255, 255, 0.15)",
+            borderTopColor: "#F59E0B",
             borderRadius: "50%",
             animation: "spin 0.8s linear infinite",
           }}
