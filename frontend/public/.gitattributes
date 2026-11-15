@@ -1,2 +1,7 @@
-# AgentPlat packages this default favicon directly from source without LFS hydration.
+# Ensure all public images are stored directly in git as real binaries, not LFS pointers
+cards-3d.jpg -filter -diff -merge -text
+hero-3d.jpg -filter -diff -merge -text
 favicon.png -filter -diff -merge -text
+*.jpg -filter -diff -merge -text
+*.jpeg -filter -diff -merge -text
+*.png -filter -diff -merge -text

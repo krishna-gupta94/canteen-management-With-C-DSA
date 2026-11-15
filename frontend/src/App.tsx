@@ -9,10 +9,12 @@ import { analyticsApi } from "./api/analytics.api";
 import { Food } from "./types/food.types";
 import { User } from "./types/auth.types";
 import { DashboardSummary, PopularFood, DailySales } from "./types/admin.types";
+import heroImg from "./assets/hero-3d.jpg";
+import cardsImg from "./assets/cards-3d.jpg";
 
 const images = {
-  hero: "/hero-3d.jpg",
-  login: "/cards-3d.jpg",
+  hero: heroImg,
+  login: cardsImg,
   dosa: "https://images.unsplash.com/photo-1668236543090-82eba5ee5976?auto=format&fit=crop&w=900&q=85",
   curry:
     "https://images.unsplash.com/photo-1631515242808-497c3fbd3972?auto=format&fit=crop&w=900&q=85",
