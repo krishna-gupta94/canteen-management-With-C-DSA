@@ -19,25 +19,38 @@ int find_food_by_name(const char *name) {
 
 void seed_demo_admin() {
     int admin_count = count_admins();
+    Admin adm;
     if (admin_count > 0) {
         for (int i = 1; i <= admin_count; i++) {
-            Admin adm;
             if (load_admin_by_id(i, &adm) && adm.active) {
                 crypto_hash_password("941046", adm.password_hash, sizeof(adm.password_hash));
                 update_admin(&adm);
                 printf("Admin ID %d (%s) password set to 941046.\n", adm.id, adm.email);
             }
         }
-        return;
     }
-    Admin a;
-    memset(&a, 0, sizeof(Admin));
-    strcpy(a.name, "Demo Admin");
-    strcpy(a.email, "admin.demo@canteen.local");
-    crypto_hash_password("941046", a.password_hash, sizeof(a.password_hash));
-    a.active = STATUS_ACTIVE;
-    save_admin(&a);
-    printf("Demo Admin created with password 941046.\n");
+
+    if (!find_admin_by_email("admin.demo@canteen.local", &adm)) {
+        Admin a;
+        memset(&a, 0, sizeof(Admin));
+        strcpy(a.name, "Demo Admin");
+        strcpy(a.email, "admin.demo@canteen.local");
+        crypto_hash_password("941046", a.password_hash, sizeof(a.password_hash));
+        a.active = STATUS_ACTIVE;
+        save_admin(&a);
+        printf("Demo Admin created with password 941046.\n");
+    }
+
+    if (!find_admin_by_email("admin@gmail.com", &adm)) {
+        Admin a2;
+        memset(&a2, 0, sizeof(Admin));
+        strcpy(a2.name, "Admin");
+        strcpy(a2.email, "admin@gmail.com");
+        crypto_hash_password("941046", a2.password_hash, sizeof(a2.password_hash));
+        a2.active = STATUS_ACTIVE;
+        save_admin(&a2);
+        printf("Admin admin@gmail.com created with password 941046.\n");
+    }
 }
 
 int seed_demo_student(const char *name, const char *email) {

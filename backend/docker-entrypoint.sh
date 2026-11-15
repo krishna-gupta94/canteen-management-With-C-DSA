@@ -10,11 +10,9 @@ echo "===================================================="
 
 mkdir -p "${DATA_DIR:-/app/data}"
 
-# Run initial seed if data files do not exist
-if [ ! -f "${DATA_DIR:-/app/data}/foods.dat" ]; then
-    echo "First-time start: Seeding demo records..."
-    ./seed_demo
-fi
+# Ensure demo records and admins are seeded/updated
+echo "Seeding and updating demo records..."
+./seed_demo
 
 # 1. Start MongoDB Atlas Synchronizer in background supervisor loop
 echo "Launching background Atlas sync supervisor..."
