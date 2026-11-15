@@ -1,5 +1,2 @@
 @echo off
-echo Seeding MongoDB Canteen Database...
-cd database
-npm run seed
-pause
+call "%~dp0scripts\seed_database.bat"

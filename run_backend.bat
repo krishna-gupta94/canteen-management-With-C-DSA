@@ -1,5 +1,2 @@
 @echo off
-echo Starting Canteen Backend (MongoDB)...
-cd backend
-npm start
-pause
+call "%~dp0scripts\run_backend.bat"

@@ -118,7 +118,9 @@ Run-Test "9. Food Filter & Sort (GET /api/foods/filter?category=Fast%20Food&sort
 
 # 10. Add Items to Cart (POST /api/cart)
 Run-Test "10. Add Items to Cart (POST /api/cart)" {
-    $targetFood = $foods[0]
+    $targetFood = ($foods | Where-Object { $_.stock -ge 5 -and $_.availability -eq $true })[0]
+    if (-not $targetFood) { $targetFood = $foods[0] }
+    $script:testFood = $targetFood
     $body = @{
         food_id = $targetFood.food_id
         quantity = 2
@@ -135,7 +137,7 @@ Run-Test "11. View Cart (GET /api/cart)" {
 
 # 12. Update Cart Quantity (PUT /api/cart/:food_id)
 Run-Test "12. Update Cart Quantity (PUT /api/cart/:food_id)" {
-    $targetFood = $foods[0]
+    $targetFood = $script:testFood
     $body = @{ quantity = 3 } | ConvertTo-Json
     $res = Invoke-RestMethod -Uri "$baseUrl/cart/$($targetFood.food_id)" -Method Put -Headers $studentHeaders -Body $body -ContentType "application/json"
     if (-not $res.success) { throw "Update cart failed" }

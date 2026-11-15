@@ -1,0 +1,161 @@
+{
+  "admin": [
+    {
+      "admin_id": 1,
+      "name": "Demo Admin",
+      "email": "admin.demo@canteen.local",
+      "password_hash": "$dev$0f476fa92f1bab54$1f556533feeddb16",
+      "active": 1
+    }
+  ],
+  "students": [
+    {
+      "student_id": 1,
+      "name": "Aarav Sharma",
+      "email": "aarav.demo@canteen.local",
+      "phone": "9876543210",
+      "password_hash": "$dev$3818e6ec2950da1c$240c3ff411a0daec",
+      "active": 1
+    },
+    {
+      "student_id": 2,
+      "name": "Priya Verma",
+      "email": "priya.demo@canteen.local",
+      "phone": "9876543211",
+      "password_hash": "$dev$3818e6ec2950da1c$240c3ff411a0daec",
+      "active": 1
+    },
+    {
+      "student_id": 3,
+      "name": "Rahul Singh",
+      "email": "rahul.demo@canteen.local",
+      "phone": "9876543212",
+      "password_hash": "$dev$3818e6ec2950da1c$240c3ff411a0daec",
+      "active": 1
+    }
+  ],
+  "foods": [
+    {
+      "food_id": 1,
+      "name": "Veg Burger",
+      "category": "Fast Food",
+      "description": "Crispy spiced vegetable patty with fresh lettuce and sauce",
+      "price": 60,
+      "stock": 20,
+      "availability": 1,
+      "active": 1
+    },
+    {
+      "food_id": 2,
+      "name": "Cheese Burger",
+      "category": "Fast Food",
+      "description": "Double cheese loaded grilled burger with herb seasoning",
+      "price": 80,
+      "stock": 10,
+      "availability": 1,
+      "active": 1
+    },
+    {
+      "food_id": 3,
+      "name": "Veg Momos",
+      "category": "Chinese",
+      "description": "Steamed savoury vegetable dumplings with spicy red dip",
+      "price": 50,
+      "stock": 8,
+      "availability": 1,
+      "active": 1
+    },
+    {
+      "food_id": 4,
+      "name": "Paneer Momos",
+      "category": "Chinese",
+      "description": "Juicy paneer stuffed steamed momos with mint chutney",
+      "price": 70,
+      "stock": 5,
+      "availability": 1,
+      "active": 1
+    },
+    {
+      "food_id": 5,
+      "name": "Masala Dosa",
+      "category": "South Indian",
+      "description": "Golden crispy dosa served with potato masala, sambar & chutneys",
+      "price": 90,
+      "stock": 15,
+      "availability": 1,
+      "active": 1
+    },
+    {
+      "food_id": 6,
+      "name": "Paneer Dosa",
+      "category": "South Indian",
+      "description": "Butter roasted dosa filled with spiced grated cottage cheese",
+      "price": 110,
+      "stock": 12,
+      "availability": 1,
+      "active": 1
+    },
+    {
+      "food_id": 7,
+      "name": "Veg Pizza",
+      "category": "Fast Food",
+      "description": "Freshly baked thin-crust pizza with bell peppers & olives",
+      "price": 150,
+      "stock": 6,
+      "availability": 1,
+      "active": 1
+    },
+    {
+      "food_id": 8,
+      "name": "Cold Coffee",
+      "category": "Beverages",
+      "description": "Thick creamy blended cold coffee with chocolate drizzle",
+      "price": 60,
+      "stock": 10,
+      "availability": 1,
+      "active": 1
+    },
+    {
+      "food_id": 9,
+      "name": "Masala Chai",
+      "category": "Beverages",
+      "description": "Authentic fragrant Indian spiced milk tea brewed fresh",
+      "price": 20,
+      "stock": 20,
+      "availability": 1,
+      "active": 1
+    },
+    {
+      "food_id": 10,
+      "name": "Arrabbiata Pasta",
+      "category": "Fast Food",
+      "description": "Penne pasta tossed in spicy Italian tomato and garlic herb sauce",
+      "price": 120,
+      "stock": 25,
+      "availability": 1,
+      "active": 1
+    }
+  ],
+  "orders": [
+    {
+      "order_id": 1,
+      "student_id": 1,
+      "status": 3,
+      "item_count": 2,
+      "items": [
+        { "food_id": 1, "quantity": 1, "unit_price": 60, "subtotal": 60 },
+        { "food_id": 3, "quantity": 1, "unit_price": 50, "subtotal": 50 }
+      ],
+      "total_amount": 110
+    }
+  ],
+  "selesrecords": [
+    {
+      "date": "2026-11-15",
+      "total_orders": 4,
+      "total_revenue": 410,
+      "completed_orders": 3,
+      "cancelled_orders": 0
+    }
+  ]
+}
