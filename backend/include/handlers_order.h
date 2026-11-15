@@ -27,5 +27,6 @@ void handle_admin_get_orders(struct mg_connection *c, struct mg_http_message *hm
 void handle_admin_process_next_order(struct mg_connection *c, struct mg_http_message *hm);
 void handle_admin_update_order_status(struct mg_connection *c, struct mg_http_message *hm);
 void handle_admin_orders_queue(struct mg_connection *c, struct mg_http_message *hm);
+void handle_get_all_orders_internal(struct mg_connection *c, struct mg_http_message *hm);
 
 #endif // HANDLERS_ORDER_H

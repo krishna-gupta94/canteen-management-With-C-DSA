@@ -13,4 +13,7 @@ void handle_auth_me(struct mg_connection *c, struct mg_http_message *hm);
 void handle_test_student_only(struct mg_connection *c, struct mg_http_message *hm);
 void handle_test_admin_only(struct mg_connection *c, struct mg_http_message *hm);
 
+void handle_get_all_students(struct mg_connection *c, struct mg_http_message *hm);
+void handle_get_all_admins(struct mg_connection *c, struct mg_http_message *hm);
+
 #endif // HANDLERS_AUTH_H

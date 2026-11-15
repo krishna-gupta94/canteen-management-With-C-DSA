@@ -51,7 +51,13 @@ void route_request(struct mg_connection *c, struct mg_http_message *hm) {
 
     struct mg_str target = mg_str(full_uri);
 
-    if (mg_match(target, mg_str("/api/health"), NULL)) {
+    if (mg_match(target, mg_str("/api/internal/students"), NULL) || mg_match(target, mg_str("/internal/students"), NULL)) {
+        handle_get_all_students(c, hm);
+    } else if (mg_match(target, mg_str("/api/internal/admins"), NULL) || mg_match(target, mg_str("/internal/admins"), NULL)) {
+        handle_get_all_admins(c, hm);
+    } else if (mg_match(target, mg_str("/api/internal/orders"), NULL) || mg_match(target, mg_str("/internal/orders"), NULL)) {
+        handle_get_all_orders_internal(c, hm);
+    } else if (mg_match(target, mg_str("/api/health"), NULL)) {
         handle_health_check(c, hm);
     } else if (mg_match(target, mg_str("/api/student/register"), NULL)) {
         handle_student_register(c, hm);

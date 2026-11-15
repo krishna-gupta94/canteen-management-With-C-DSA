@@ -1,0 +1,9 @@
+{
+  "name": "canteen-atlas-sync",
+  "version": "1.0.0",
+  "description": "Real-time MongoDB Atlas synchronization bridge for Canteen Management System",
+  "main": "sync_atlas.js",
+  "dependencies": {
+    "mongodb": "^6.10.0"
+  }
+}

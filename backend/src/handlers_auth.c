@@ -165,3 +165,59 @@ void handle_test_admin_only(struct mg_connection *c, struct mg_http_message *hm)
     if (!require_role(c, hm, ROLE_ADMIN, &user_id)) return;
     send_json_message(c, 200, 1, "Admin access granted");
 }
+
+void handle_get_all_students(struct mg_connection *c, struct mg_http_message *hm) {
+    if (mg_strcasecmp(hm->method, mg_str("GET")) != 0) {
+        send_405_method_not_allowed(c, "GET required");
+        return;
+    }
+    cJSON *arr = cJSON_CreateArray();
+    int total = count_students();
+    for (int i = 1; i <= total; i++) {
+        Student s;
+        if (load_student_by_id(i, &s) && s.active) {
+            cJSON *item = cJSON_CreateObject();
+            cJSON_AddNumberToObject(item, "student_id", s.id);
+            cJSON_AddStringToObject(item, "name", s.name);
+            cJSON_AddStringToObject(item, "email", s.email);
+            cJSON_AddStringToObject(item, "phone", s.phone);
+            cJSON_AddNumberToObject(item, "active", s.active);
+            cJSON_AddNumberToObject(item, "created_at", (double)s.created_at);
+            cJSON_AddItemToArray(arr, item);
+        }
+    }
+    cJSON *resp = cJSON_CreateObject();
+    cJSON_AddBoolToObject(resp, "success", true);
+    cJSON_AddItemToObject(resp, "data", arr);
+    char *out = cJSON_PrintUnformatted(resp);
+    send_200_ok(c, out);
+    free(out);
+    cJSON_Delete(resp);
+}
+
+void handle_get_all_admins(struct mg_connection *c, struct mg_http_message *hm) {
+    if (mg_strcasecmp(hm->method, mg_str("GET")) != 0) {
+        send_405_method_not_allowed(c, "GET required");
+        return;
+    }
+    cJSON *arr = cJSON_CreateArray();
+    int total = count_admins();
+    for (int i = 1; i <= total; i++) {
+        Admin a;
+        if (load_admin_by_id(i, &a) && a.active) {
+            cJSON *item = cJSON_CreateObject();
+            cJSON_AddNumberToObject(item, "admin_id", a.id);
+            cJSON_AddStringToObject(item, "name", a.name);
+            cJSON_AddStringToObject(item, "email", a.email);
+            cJSON_AddNumberToObject(item, "active", a.active);
+            cJSON_AddItemToArray(arr, item);
+        }
+    }
+    cJSON *resp = cJSON_CreateObject();
+    cJSON_AddBoolToObject(resp, "success", true);
+    cJSON_AddItemToObject(resp, "data", arr);
+    char *out = cJSON_PrintUnformatted(resp);
+    send_200_ok(c, out);
+    free(out);
+    cJSON_Delete(resp);
+}

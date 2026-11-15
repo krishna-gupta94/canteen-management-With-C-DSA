@@ -554,3 +554,22 @@ void handle_admin_orders_queue(struct mg_connection *c, struct mg_http_message *
     free(json_str);
     cJSON_Delete(root);
 }
+
+void handle_get_all_orders_internal(struct mg_connection *c, struct mg_http_message *hm) {
+    if (mg_strcasecmp(hm->method, mg_str("GET")) != 0) { send_405_method_not_allowed(c, "GET required"); return; }
+    cJSON *root = cJSON_CreateObject();
+    cJSON_AddBoolToObject(root, "success", true);
+    cJSON *arr = cJSON_CreateArray();
+    int count = count_orders();
+    for (int i = 1; i <= count; i++) {
+        Order o;
+        if (load_order_by_id(i, &o)) {
+            cJSON_AddItemToArray(arr, order_to_json(&o));
+        }
+    }
+    cJSON_AddItemToObject(root, "data", arr);
+    char *json_str = cJSON_PrintUnformatted(root);
+    send_200_ok(c, json_str);
+    free(json_str);
+    cJSON_Delete(root);
+}
