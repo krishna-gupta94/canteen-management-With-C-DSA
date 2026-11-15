@@ -24,6 +24,10 @@ COPY --from=builder /build/canteen_server /app/canteen_server
 COPY --from=builder /build/seed_demo /app/seed_demo
 COPY package.json /app/package.json
 COPY sync_atlas.js /app/sync_atlas.js
+COPY docker-entrypoint.sh /app/docker-entrypoint.sh
+
+# Ensure binaries and entrypoint script are executable
+RUN chmod +x /app/canteen_server /app/seed_demo /app/docker-entrypoint.sh
 
 # Install mongodb driver for Atlas sync
 RUN npm install --omit=dev
@@ -38,5 +42,4 @@ ENV HOST=0.0.0.0
 
 EXPOSE 8080
 
-# Start C server and background Atlas synchronization service
-CMD ["sh", "-c", "./canteen_server & node sync_atlas.js"]
+ENTRYPOINT ["/app/docker-entrypoint.sh"]

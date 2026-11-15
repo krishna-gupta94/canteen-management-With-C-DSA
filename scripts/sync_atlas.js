@@ -2,23 +2,29 @@ const fs = require('fs');
 const path = require('path');
 const { MongoClient } = require('mongodb');
 
-// Read MONGODB_URI from .env file if not present in process.env
+// Read MONGODB_URI from .env file or environment
 function loadEnv() {
-  const envPath = path.resolve(__dirname, '..', '.env');
-  if (fs.existsSync(envPath)) {
-    const lines = fs.readFileSync(envPath, 'utf8').split('\n');
-    for (const line of lines) {
-      const trimmed = line.trim();
-      if (!trimmed || trimmed.startsWith('#')) continue;
-      const eqIdx = trimmed.indexOf('=');
-      if (eqIdx !== -1) {
-        const key = trimmed.slice(0, eqIdx).trim();
-        let val = trimmed.slice(eqIdx + 1).trim();
-        if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
-          val = val.slice(1, -1);
-        }
-        if (!process.env[key]) {
-          process.env[key] = val;
+  const envPaths = [
+    path.resolve(__dirname, '..', '.env'),
+    path.resolve(__dirname, '.env'),
+    path.resolve('/app', '.env')
+  ];
+  for (const p of envPaths) {
+    if (fs.existsSync(p)) {
+      const lines = fs.readFileSync(p, 'utf8').split('\n');
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed || trimmed.startsWith('#')) continue;
+        const eqIdx = trimmed.indexOf('=');
+        if (eqIdx !== -1) {
+          const key = trimmed.slice(0, eqIdx).trim();
+          let val = trimmed.slice(eqIdx + 1).trim();
+          if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+            val = val.slice(1, -1);
+          }
+          if (!process.env[key]) {
+            process.env[key] = val;
+          }
         }
       }
     }
@@ -28,7 +34,9 @@ function loadEnv() {
 loadEnv();
 
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://krishnagupta94112_db_user:q5RFINxiaNhkULLa@cluster0.t1l7ozq.mongodb.net/?retryWrites=true&w=majority";
-const BACKEND_URL = (process.env.BACKEND_URL || 'http://127.0.0.1:8080/api').replace(/\/+$/, '');
+const PORT = process.env.PORT || '8080';
+const DEFAULT_BACKEND = `http://127.0.0.1:${PORT}/api`;
+const BACKEND_URL = (process.env.BACKEND_URL || DEFAULT_BACKEND).replace(/\/+$/, '');
 const DB_NAME = process.env.MONGODB_DB || 'canteen_db';
 
 async function fetchJson(endpoint) {
@@ -180,45 +188,64 @@ async function main() {
   console.log('====================================================');
   console.log(' CANTEEN MANAGEMENT SYSTEM - MONGODB ATLAS SYNC');
   console.log('====================================================');
-  console.log(`Connecting to MongoDB Atlas...`);
+  console.log(`Target database: [${DB_NAME}]`);
+  console.log(`Backend endpoint: [${BACKEND_URL}]`);
 
-  const client = new MongoClient(MONGODB_URI);
-  try {
-    await client.connect();
-    console.log('✓ Successfully connected to MongoDB Atlas cluster!');
-    console.log(`Target database: [${DB_NAME}]`);
+  const isOnce = process.argv.includes('--once');
 
-    const isOnce = process.argv.includes('--once');
+  while (true) {
+    let client = null;
+    try {
+      console.log('Connecting to MongoDB Atlas...');
+      client = new MongoClient(MONGODB_URI, {
+        serverSelectionTimeoutMS: 8000,
+        connectTimeoutMS: 10000,
+      });
+      await client.connect();
+      console.log('✓ Successfully connected to MongoDB Atlas cluster!');
 
-    // Run initial sync
-    const stats = await syncToAtlas(client);
-    console.log(`[${new Date().toLocaleTimeString()}] Initial Sync: ${stats.foods} foods, ${stats.students} students, ${stats.admins} admins, ${stats.orders} orders.`);
+      // Run initial sync
+      const stats = await syncToAtlas(client);
+      console.log(`[${new Date().toLocaleTimeString()}] Initial Sync: ${stats.foods} foods, ${stats.students} students, ${stats.admins} admins, ${stats.orders} orders.`);
 
-    if (isOnce) {
-      console.log('One-shot sync complete. Exiting.');
-      await client.close();
-      return;
+      if (isOnce) {
+        console.log('One-shot sync complete. Exiting.');
+        await client.close();
+        return;
+      }
+
+      console.log('Live Watch Mode Active: Polling backend for real-time changes every 3s...');
+      let lastSummary = `${stats.foods}-${stats.students}-${stats.admins}-${stats.orders}`;
+
+      while (true) {
+        await new Promise(r => setTimeout(r, 3000));
+        try {
+          const currentStats = await syncToAtlas(client);
+          const summary = `${currentStats.foods}-${currentStats.students}-${currentStats.admins}-${currentStats.orders}`;
+          if (summary !== lastSummary) {
+            lastSummary = summary;
+            console.log(`[${new Date().toLocaleTimeString()}] Live Update Pushed: ${currentStats.foods} foods, ${currentStats.students} students, ${currentStats.orders} orders updated in Atlas.`);
+          }
+        } catch (pollErr) {
+          console.error('Atlas sync poll notice:', pollErr.message);
+          if (pollErr.message && (pollErr.message.includes('closed') || pollErr.message.includes('topology was destroyed') || pollErr.message.includes('not connected'))) {
+            break;
+          }
+        }
+      }
+    } catch (err) {
+      console.error('⚠️ Atlas connection notice (will retry in 5s):', err.message);
+      if (isOnce) {
+        process.exit(1);
+      }
+    } finally {
+      if (client) {
+        try { await client.close(); } catch (_) {}
+      }
     }
 
-    console.log('Live Watch Mode Active: Polling backend for real-time changes every 3s...');
-    let lastSummary = '';
-
-    setInterval(async () => {
-      try {
-        const currentStats = await syncToAtlas(client);
-        const summary = `${currentStats.foods}-${currentStats.students}-${currentStats.admins}-${currentStats.orders}`;
-        if (summary !== lastSummary) {
-          lastSummary = summary;
-          console.log(`[${new Date().toLocaleTimeString()}] Live Update Pushed: ${currentStats.foods} foods, ${currentStats.students} students, ${currentStats.orders} orders updated in Atlas.`);
-        }
-      } catch (err) {
-        console.error('Sync interval error:', err.message);
-      }
-    }, 3000);
-
-  } catch (err) {
-    console.error('Fatal connection error:', err.message);
-    process.exit(1);
+    if (isOnce) return;
+    await new Promise(r => setTimeout(r, 5000));
   }
 }
 
