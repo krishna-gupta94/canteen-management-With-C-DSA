@@ -22,11 +22,14 @@ WORKDIR /app
 
 COPY --from=builder /build/canteen_server /app/canteen_server
 COPY --from=builder /build/seed_demo /app/seed_demo
-COPY data/ /app/data/
+
+# Initialize storage directory and seed demo records during build
+RUN mkdir -p /app/data
+ENV DATA_DIR=/app/data
+RUN ./seed_demo
 
 ENV PORT=8080
 ENV HOST=0.0.0.0
-ENV DATA_DIR=/app/data
 
 EXPOSE 8080
 

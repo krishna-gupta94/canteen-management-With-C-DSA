@@ -19,8 +19,9 @@ frontend/playwright/.cache/
 *.obj
 *.out
 
-# Backend Data Storage (Ignore auto-generated database files)
+# Backend Data Storage (Ignore auto-generated database files, keep directory)
 backend/data/*.dat
+!backend/data/.gitkeep
 
 # Ignore large archives and temporary migration folders
 mingw.zip
