@@ -144,10 +144,17 @@ static void send_food_list_response(struct mg_connection *c, LinkedList *list) {
 // Extract ID from URL (e.g., /api/admin/foods/123/price)
 // ---------------------------------------------------------
 static int extract_id(struct mg_http_message *hm, const char *prefix) {
-    // skip prefix
-    const char *p = hm->uri.buf + strlen(prefix);
-    if (*p == '/') p++;
-    return atoi(p);
+    const char *p = NULL;
+    if (hm->uri.len >= strlen(prefix) && strstr(hm->uri.buf, prefix)) {
+        p = strstr(hm->uri.buf, prefix) + strlen(prefix);
+    } else {
+        const char *last_slash = strrchr(prefix, '/');
+        const char *keyword = last_slash ? last_slash + 1 : prefix;
+        const char *found = strstr(hm->uri.buf, keyword);
+        if (found) p = found + strlen(keyword);
+    }
+    if (p && *p == '/') p++;
+    return p ? atoi(p) : 0;
 }
 
 // ---------------------------------------------------------
