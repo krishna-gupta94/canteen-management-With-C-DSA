@@ -5,9 +5,9 @@
 
 USE canteen_db;
 
--- 1. Seed Demo Admin (password: demo_admin123)
+-- 1. Seed Demo Admin (password: 941046)
 INSERT INTO admins (id, name, email, password_hash, active) VALUES
-(1, 'Demo Admin', 'admin.demo@canteen.local', '$dev$0f476fa92f1bab54$1f556533feeddb16', 1)
+(1, 'Demo Admin', 'admin.demo@canteen.local', '$dev$ebbb5da66201169a$00000000827dfd22', 1)
 ON DUPLICATE KEY UPDATE name = VALUES(name);
 
 -- 2. Seed Demo Students (password: demo_pass123)

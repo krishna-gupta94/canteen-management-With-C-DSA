@@ -72,7 +72,7 @@ This inventory documents all live API endpoints implemented in the **C Backend (
   ```json
   {
     "email": "admin.demo@canteen.local",
-    "password": "demo_admin123"
+    "password": "941046"
   }
   ```
 - **Response `200 OK`:**

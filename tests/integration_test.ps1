@@ -82,7 +82,7 @@ Run-Test "4. Student Auth Identity (GET /api/auth/me)" {
 $adminAuth = Run-Test "5. Admin Login (POST /api/admin/login)" {
     $body = @{
         email = "admin.demo@canteen.local"
-        password = "demo_admin123"
+        password = "941046"
     } | ConvertTo-Json
     $res = Invoke-RestMethod -Uri "$baseUrl/admin/login" -Method Post -Body $body -ContentType "application/json"
     if (-not $res.token) { throw "No admin token returned" }

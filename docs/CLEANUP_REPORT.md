@@ -258,4 +258,4 @@ SUMMARY: 32 / 32 tests passed successfully.
 
 ### 3. Demo Credentials
 - **Student Account:** `aarav.demo@canteen.local` / `demo_pass123`
-- **Admin Account:** `admin.demo@canteen.local` / `demo_admin123`
+- **Admin Account:** `admin.demo@canteen.local` / `941046`

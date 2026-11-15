@@ -116,7 +116,7 @@ All 32 tests verify health, authentication, menu search, cart synchronization, c
 
 - **Administrator:**
   - Email: `admin.demo@canteen.local`
-  - Password: `demo_admin123`
+  - Password: `941046`
 - **Student:**
   - Register any student account directly in the UI (`/register`) or use `tester@college.edu` / `password123`.
 
