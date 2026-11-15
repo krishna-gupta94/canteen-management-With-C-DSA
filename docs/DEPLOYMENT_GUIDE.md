@@ -39,8 +39,8 @@ Since the backend is written in **C + DSA**, it runs inside a lightweight, light
    - **Instance Type:** `Free` ($0/month)
 6. Click **Create Web Service**.
 7. Render will automatically build the `Dockerfile` and compile the C code using GCC.
-8. Once finished, copy your public backend URL, e.g.:
-   `https://canteen-management-backend.onrender.com`
+8. Once finished, copy your public backend URL:
+   `https://canteenmanagement-backend.onrender.com`
 
 ---
 
@@ -54,8 +54,8 @@ Since the backend is written in **C + DSA**, it runs inside a lightweight, light
    - **Root Directory:** Click *Edit* and select `frontend`.
 5. Under **Environment Variables**, add:
    - **Name:** `VITE_API_BASE_URL`
-   - **Value:** `https://your-backend-url.onrender.com/api` (the URL from Step 1 with `/api`)
-6. Click **Deploy**.
+   - **Value:** `https://canteenmanagement-backend.onrender.com/api`
+6. Click **Deploy** (or if already deployed, go to **Settings ➔ Environment Variables**, update it, and click **Deployments ➔ Redeploy**).
 7. In ~30 seconds, your site will be live at `https://canteen-management-xxx.vercel.app`!
 
 ---
