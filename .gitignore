@@ -4,6 +4,7 @@ frontend/dist/
 frontend/build/
 .env
 .env.*
+!.env.example
 .DS_Store
 npm-debug.log*
 
