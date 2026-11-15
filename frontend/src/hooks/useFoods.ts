@@ -10,21 +10,25 @@ export const DEFAULT_FOOD_IMAGES: Record<string, string> = {
   Chinese: 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=900&q=85',
   'South Indian': 'https://images.unsplash.com/photo-1668236543090-82eba5ee5976?auto=format&fit=crop&w=900&q=85',
   'Fast Food': 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=900&q=85',
+  Pasta: 'https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&w=900&q=85',
+  Italian: 'https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&w=900&q=85',
   Default: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=900&q=85',
 };
 
 const resolveFoodImage = (name: string, category: string, explicitImage?: string): string => {
-  if (explicitImage && explicitImage.trim().length > 0 && !explicitImage.includes('example.com')) {
+  if (explicitImage && explicitImage.trim().length > 0 && !explicitImage.includes('example.com') && !explicitImage.includes('photo-1621996346565')) {
     return explicitImage;
   }
-  const n = (name || '').toLowerCase();
-  const c = (category || '').toLowerCase();
+  const n = (name || '').toLowerCase().trim();
+  const c = (category || '').toLowerCase().trim();
 
+  if (n.includes('pasta') || n.includes('macaroni') || n.includes('spaghetti') || n.includes('penne') || n.includes('lasagna')) {
+    return 'https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&w=900&q=85';
+  }
   if (n.includes('burger')) return 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=900&q=85';
   if (n.includes('momo') || n.includes('dumpling')) return 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=900&q=85';
   if (n.includes('dosa') || n.includes('idli') || n.includes('vada')) return 'https://images.unsplash.com/photo-1668236543090-82eba5ee5976?auto=format&fit=crop&w=900&q=85';
   if (n.includes('pizza')) return 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=900&q=85';
-  if (n.includes('pasta') || n.includes('macaroni')) return 'https://images.unsplash.com/photo-1621996346565-e3d5d6281745?auto=format&fit=crop&w=900&q=85';
   if (n.includes('chai') || n.includes('tea')) return 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?auto=format&fit=crop&w=900&q=85';
   if (n.includes('coffee') || n.includes('cappuccino') || n.includes('latte')) return 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=900&q=85';
   if (n.includes('sandwich') || n.includes('toast') || n.includes('wrap')) return 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&w=900&q=85';
@@ -34,6 +38,7 @@ const resolveFoodImage = (name: string, category: string, explicitImage?: string
   if (n.includes('cake') || n.includes('ice cream') || n.includes('sweet') || n.includes('dessert') || n.includes('gulab')) return 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=900&q=85';
   if (n.includes('shake') || n.includes('juice') || n.includes('smoothie')) return 'https://images.unsplash.com/photo-1553530666-ba11a7da3888?auto=format&fit=crop&w=900&q=85';
 
+  if (c.includes('pasta') || c.includes('italian')) return DEFAULT_FOOD_IMAGES['Pasta'];
   if (c.includes('south')) return DEFAULT_FOOD_IMAGES['South Indian'];
   if (c.includes('chinese')) return DEFAULT_FOOD_IMAGES['Chinese'];
   if (c.includes('fast')) return DEFAULT_FOOD_IMAGES['Fast Food'];

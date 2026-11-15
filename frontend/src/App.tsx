@@ -22,6 +22,7 @@ const images = {
   toast:
     "https://images.unsplash.com/photo-1613292443284-8d10ef9383fe?auto=format&fit=crop&w=900&q=85",
   bowl: "https://images.unsplash.com/photo-1727404746799-253aa9a8ace6?auto=format&fit=crop&w=900&q=85",
+  pasta: "https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&w=900&q=85",
 };
 
 const iconPaths: Record<string, ReactNode> = {
