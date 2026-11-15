@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: canteen-backend
+    env: docker
+    dockerContext: ./backend
+    dockerfilePath: ./backend/Dockerfile
+    plan: free
+    region: oregon
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: HOST
+        value: 0.0.0.0
